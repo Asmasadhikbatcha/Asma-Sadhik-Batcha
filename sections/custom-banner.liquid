@@ -1,8 +1,12 @@
 {{ 'custom-banner.css' | asset_url | stylesheet_tag }}
 
 <section class="custom-banner">
-
+  <!-- Top Bar -->
   <div class="cb-topbar">
+    <div class="cb-hamburger">
+      <span></span><span></span><span></span>
+    </div>
+    
     <div class="cb-logo">
       {{ section.settings.logo_text }}
     </div>
@@ -17,55 +21,39 @@
     </a>
   </div>
 
+  <!-- Photography Hero (Hidden on mobile) -->
   <div class="cb-hero">
     {% if section.settings.hero_image != blank %}
-      {{
-        section.settings.hero_image
-        | image_url: width: 2000
-        | image_tag:
-        loading: 'lazy',
-        class: 'cb-hero-image'
-      }}
+      {{ section.settings.hero_image | image_url: width: 2000 | image_tag: loading: 'lazy', class: 'cb-hero-image' }}
     {% endif %}
   </div>
 
   <div class="cb-content">
-
     <div class="cb-left">
-
       <h2>{{ section.settings.heading }}</h2>
-
       <div class="cb-description">
         {{ section.settings.description }}
       </div>
+    </div>
 
+    <div class="cb-right">
+      {% if section.settings.side_image != blank %}
+        {{ section.settings.side_image | image_url: width: 1200 | image_tag: loading: 'lazy', class: 'cb-side-image' }}
+      {% endif %}
+      
+      <!-- Button is placed here to allow for the mobile overlap layout -->
       <a href="{{ section.settings.button_link }}" class="cb-button">
         <span>{{ section.settings.button_text }}</span>
         <span>→</span>
       </a>
-
     </div>
-
-    <div class="cb-right">
-
-      {% if section.settings.side_image != blank %}
-        {{
-          section.settings.side_image
-          | image_url: width: 1200
-          | image_tag:
-          loading: 'lazy',
-          class: 'cb-side-image'
-        }}
-      {% endif %}
-
-    </div>
-
   </div>
 
+  <!-- Bottom Strip with separate Desktop/Mobile text -->
   <div class="cb-strip">
-    {{ section.settings.bottom_text }}
+    <span class="cb-strip-desktop">{{ section.settings.bottom_text }}</span>
+    <span class="cb-strip-mobile">{{ section.settings.bottom_text_mobile }}</span>
   </div>
-
 </section>
 
 {% schema %}
@@ -110,7 +98,7 @@
       "type": "richtext",
       "id": "description",
       "label": "Description",
-      "default": "<p>Discover Joy: Your Ultimate Holiday Gift Destination. Explore our curated selection and find the perfect gifts to delight your loved ones this holiday season.</p>"
+      "default": "<p>Discover Joy: Your Ultimate Holiday Gift Destination.</p>"
     },
     {
       "type": "text",
@@ -131,8 +119,14 @@
     {
       "type": "text",
       "id": "bottom_text",
-      "label": "Bottom Strip Text",
+      "label": "Bottom Strip Text (Desktop)",
       "default": "SUSTAINABLE, ETHICALLY MADE CLOTHES IN SIZES XXS TO 6XL"
+    },
+    {
+      "type": "text",
+      "id": "bottom_text_mobile",
+      "label": "Bottom Strip Text (Mobile)",
+      "default": "SUSTAINABLE, ETHICALLY MADE ACTIVEWEAR"
     }
   ],
   "presets": [
