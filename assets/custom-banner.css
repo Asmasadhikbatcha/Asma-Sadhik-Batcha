@@ -137,5 +137,38 @@
     z-index: 10;
   }
 
-  .cb-strip { border: none; height: auto; padding: 20px; font-weight: 500; }
+  .cb-strip {
+    /* Exact Figma Specs */
+    width: 375px;
+    height: 34px;
+    gap: 375px;
+    opacity: 1;
+    transform: rotate(0deg); /* Angle: 0 deg */
+    padding-top: 10px;
+    padding-right: 50px;
+    padding-bottom: 10px;
+    padding-left: 50px;
+
+    /* Layout & Alignment */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto; /* Keeps the 375px strip centered on screen */
+    border: none;   /* Removes the desktop border */
+    background: #f5f5f5;
+    box-sizing: border-box;
+    overflow: hidden; /* Prevents the 375px gap from causing scroll */
+  }
+
+  .cb-strip-mobile {
+    display: block !important;
+    font-size: 10px; /* Adjust size to ensure "Activewear" text fits the padding */
+    white-space: nowrap;
+    text-align: center;
+    letter-spacing: 0.5px;
+  }
+  
+  .cb-strip-desktop {
+    display: none !important;
+  }
 }
