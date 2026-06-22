@@ -1,10 +1,9 @@
-/* --- GLOBAL FIXES --- */
 .custom-banner {
   width: 100%;
   max-width: 1440px;
   margin: 0 auto;
   background: #f5f5f5;
-  overflow: hidden; /* Fixes Desktop Overflow */
+  overflow: hidden; 
   font-family: 'Jost', sans-serif;
 }
 
@@ -33,15 +32,11 @@
   justify-content: center;
   gap: 8px;
 }
-
-/* Photography Section (No overflow) */
 .cb-hero { width: 100%; height: 390px; }
 .cb-hero-image { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-/* Content Grid Fix */
 .cb-content {
   display: grid;
-  grid-template-columns: 459px 1fr; /* Use 1fr to prevent overflow */
+  grid-template-columns: 459px 1fr;
   align-items: center;
   padding: 0 50px;
   height: 402px;
@@ -96,7 +91,6 @@
 
 .cb-strip-mobile, .cb-mobile-only { display: none; }
 
-/* --- MOBILE VERSION (AS PER SCREENSHOT) --- */
 @media screen and (max-width: 990px) {
   .cb-topbar { padding: 0 20px; justify-content: center; position: relative; }
   .cb-hamburger { display: flex; position: absolute; left: 20px; }
@@ -125,7 +119,7 @@
 
   .cb-side-image {
     max-height: 300px;
-    width: 120%; /* Makes image larger for mobile */
+    width: 120%;
   }
 
   .cb-button.cb-mobile-only {
@@ -138,31 +132,28 @@
   }
 
   .cb-strip {
-    /* Exact Figma Specs */
     width: 375px;
     height: 34px;
     gap: 375px;
     opacity: 1;
-    transform: rotate(0deg); /* Angle: 0 deg */
+    transform: rotate(0deg);
    margin-top: 0 !important;
     padding-right: 50px;
     padding-bottom: 10px;
     padding-left: 50px;
-
-    /* Layout & Alignment */
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto; /* Keeps the 375px strip centered on screen */
-    border: none;   /* Removes the desktop border */
+    margin: 0 auto;
+    border: none;
     background: #f5f5f5;
     box-sizing: border-box;
-    overflow: hidden; /* Prevents the 375px gap from causing scroll */
+    overflow: hidden; 
   }
 
   .cb-strip-mobile {
     display: block !important;
-    font-size: 10px; /* Adjust size to ensure "Activewear" text fits the padding */
+    font-size: 10px;
     white-space: nowrap;
     text-align: center;
     letter-spacing: 0.5px;
