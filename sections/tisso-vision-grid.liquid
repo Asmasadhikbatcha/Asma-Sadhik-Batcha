@@ -317,66 +317,70 @@
     flex-shrink: 0;
   }
 
- /* --- CORRECT MOBILE & POPUP FIX --- */
-  @media (max-width: 768px) {
-    /* 1. Fix the 2-Column Grid */
-    .tisso-vision-grid { 
-      grid-template-columns: repeat(2, 1fr) !important; 
-      gap: 10px !important; 
-    }
-
-    /* 2. Fix the Popup so it isn't hidden/cut off */
-    .tisso-popup-card {
-      width: 92vw !important;      /* Use 92% of screen width */
-      max-width: 311px !important; 
-      height: auto !important;     /* Let height be flexible */
-      max-height: 90vh !important; /* Don't let it be taller than the screen */
-      overflow-y: auto !important; /* Add scroll if content is too long */
-      padding: 30px 15px 20px 15px !important;
-      margin: 0 auto;
-    }
-
-    /* 3. Ensure Close Button is visible and clickable */
-    .tisso-popup-close {
-      top: 10px !important;
-      right: 10px !important;
-      font-size: 24px !important;
-      z-index: 101 !important;
-    }
-
-    /* 4. Fix Product Info for smaller screens */
-    .tisso-popup-info-row {
-      flex-direction: row;
-      gap: 10px !important;
-    }
-    .tisso-popup-img {
-      width: 100px !important;
-      height: 120px !important;
-    }
-
-    /* 5. Ensure Selectors and Buttons fit */
-    .tisso-popup-selector-group, 
-    .tisso-popup-color-box, 
-    .tisso-popup-size-box, 
-    .tisso-popup-atc-btn {
-      width: 100% !important; /* Stretch to fill the 92vw card */
-    }
-    
-    .size-group {
-      width: 100% !important;
-    }
-    
-    .tisso-custom-dropdown {
-      width: 100% !important;
-    }
+ /* --- FINAL MOBILE VERSION (2-COL GRID + FULL-SCREEN POPUP) --- */
+@media (max-width: 768px) {
+  /* 1. Force 2 Columns on Mobile */
+  .tisso-vision-grid { 
+    grid-template-columns: repeat(2, 1fr) !important; 
+    gap: 10px !important; 
+    overflow: visible !important; /* Prevents clipping grid items */
   }
 
-  /* --- DESKTOP REMAINS 3 COLUMNS --- */
-  @media (min-width: 769px) {
-    .tisso-vision-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
+  /* 2. Fix Popup - Position:Fixed prevents it from being "hidden" */
+  .tisso-popup-overlay {
+    position: fixed !important; /* Fixed to screen, not the grid item */
+    top: 0; left: 0; 
+    width: 100vw; height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5) !important; /* Darker dim for mobile */
+    z-index: 9999 !important;
   }
+
+  .tisso-popup-card {
+    width: 92vw !important;      /* Responsive width */
+    max-width: 311px !important; 
+    height: auto !important;     /* Auto height so it doesn't cut off */
+    max-height: 90vh !important; /* Caps height to screen size */
+    overflow-y: auto !important; /* Adds scroll inside popup if text is long */
+    padding: 30px 15px 20px 15px !important;
+    border-radius: 4px !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
+  }
+
+  /* 3. Close Button Fix - Bigger tap area for mobile */
+  .tisso-popup-close {
+    top: 10px !important;
+    right: 10px !important;
+    font-size: 26px !important;
+    padding: 10px !important;
+    z-index: 10000 !important;
+  }
+
+  /* 4. Fit elements inside the smaller card */
+  .tisso-popup-info-row {
+    gap: 10px !important;
+  }
+  .tisso-popup-img {
+    width: 90px !important;  /* Slightly smaller image for mobile */
+    height: 110px !important;
+  }
+  .tisso-popup-desc {
+    max-width: 100% !important;
+    font-size: 13px !important;
+  }
+
+  /* 5. Stretch buttons/selectors to full card width */
+  .tisso-popup-selector-group, 
+  .tisso-popup-color-box, 
+  .tisso-popup-size-box, 
+  .tisso-popup-atc-btn {
+    width: 100% !important;
+  }
+
+  /* 6. Adjust ATC button text/arrow spacing for mobile */
+  .tisso-popup-atc-btn {
+    gap: 20px !important;
+  }
+}
 </style>
 
 <script>
