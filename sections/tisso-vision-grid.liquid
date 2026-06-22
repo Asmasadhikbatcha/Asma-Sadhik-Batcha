@@ -49,7 +49,14 @@
   .tisso-vision-wrapper { padding: 60px 0; background: #fff; }
   .tisso-container { max-width: 1360px; margin: 0 auto; padding: 0 20px; }
   .tisso-main-title { font-family: serif; font-size: 28px; font-weight: 400; margin-bottom: 30px; color: #000; }
-  .tisso-vision-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+  
+  /* Desktop: 3 Columns */
+  .tisso-vision-grid { 
+    display: grid; 
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 30px; 
+  }
+  
   .tisso-image-container { position: relative; line-height: 0; aspect-ratio: 433 / 444; background: #f4f4f4; overflow: hidden; }
   .tisso-image-container > img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
@@ -61,11 +68,10 @@
     padding: 0; transform: translate(-50%, -50%); transition: background 0.2s, color 0.2s;
   }
   .hotspot-symbol { font-size: 20px; font-weight: 300; line-height: 1; color: #000; font-family: sans-serif; }
-  
   .tisso-hotspot.is-active { background: #000; }
   .tisso-hotspot.is-active .hotspot-symbol { color: #fff; font-size: 22px; }
 
-  /* --- POPUP OVERLAY & CARD (EXACT SCREENSHOT ALIGNMENT) --- */
+  /* --- POPUP OVERLAY & CARD --- */
   .tisso-popup-overlay {
     position: absolute; top: 0; left: 0; right: 0; bottom: 0;
     background-color: rgba(255, 255, 255, 0.25);
@@ -74,371 +80,73 @@
   }
   .tisso-popup-overlay.is-open { opacity: 1; visibility: visible; }
 
- .tisso-popup-card {
+  .tisso-popup-card {
     width: 311px;
-    height: 447px; /* Matches Figma Layout Exactly */
+    height: 447px;
     background-color: #fff;
     border-radius: 0;
-    
-    /* Exact Figma Shadow: X:0, Y:2, Blur:4, 20% Opacity */
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2); 
-    
     padding: 35px 20px 25px 20px;
     box-sizing: border-box;
     position: relative;
     text-align: left;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    line-height: normal;
-    cursor: default;
-
-    /* Added to manage content inside the fixed height */
     display: flex;
     flex-direction: column;
     justify-content: flex-start; 
   }
 
-  /* Ensure the button stays at the bottom of the 447px box */
-  .tisso-popup-atc-btn {
-    margin-top: auto; /* Pushes button to bottom of the fixed container */
-    width: 100%; 
-    height: 45px; 
-    background-color: #000; 
-    color: #fff; 
-    border: none;
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    gap: 15px; 
-    cursor: pointer;
-    transition: opacity 0.2s;
-  }
+  /* Typography */
+  .tisso-popup-title { font-family: 'Jost', sans-serif; font-size: 16px; font-weight: 300; line-height: 1.2; color: #000; margin-bottom: 4px; }
+  .tisso-popup-price { font-family: 'Lustria', serif; font-size: 16px; font-weight: 400; line-height: 1.2; color: #000; margin-bottom: 12px; }
+  .tisso-popup-desc { font-family: 'Jost', sans-serif; font-size: 14px; font-weight: 300; line-height: 1.4; color: #333; margin: 0; max-width: 146px; }
 
-  /* Close Icon (Top Right) */
-  .tisso-popup-close {
-    position: absolute; top: 12px; right: 15px; background: transparent; border: none;
-    font-size: 18px; font-weight: 300; line-height: 1; color: #000; cursor: pointer; padding: 4px;
-  }
-
-  /* 1. Top Product Info Row */
-  .tisso-popup-info-row { display: flex; gap: 15px; align-items: flex-start; margin-bottom: 20px; width: 100%; }
-  .tisso-popup-img { width: 120px; height: 140px; object-fit: cover; flex-shrink: 0; display: block; border: 1px solid #f0f0f0; }
-  .tisso-popup-text-col { flex: 1; display: flex; flex-direction: column; text-align: left; }
+  /* Color & Size Selectors */
+  .tisso-popup-selector-group { width: 271px; margin-bottom: 18px; }
+  .tisso-popup-label { font-family: 'Jost', sans-serif; font-size: 12px; font-weight: 300; color: #000; margin-bottom: 8px; display: block; }
+  .tisso-popup-color-box, .tisso-popup-size-box { display: flex; width: 271px; height: 40px; border: 1px solid #000; box-sizing: border-box; background: #fff; position: relative; }
   
-  .tisso-popup-title {
-    font-family: 'Jost', sans-serif; /* Specified in Figma */
-    font-size: 16px;                /* Specified in Figma */
-    font-weight: 300;               /* "Light" weight in Figma */
-    line-height: 1.2;               /* 120% in Figma = 1.2 */
-    color: #000;
-    margin-bottom: 4px;             /* Adjusted for layout spacing */
-    text-transform: none;           /* Ensure no unwanted capitalization */
-  }
-.tisso-popup-price {
-    font-family: 'Lustria', serif; /* Specified in Figma */
-    font-size: 16px;               /* Specified in Figma */
-    font-weight: 400;              /* Specified in Figma */
-    line-height: 1.2;              /* 120% in Figma = 1.2 */
-    color: #000;
-    margin-bottom: 12px;           /* Spacing below price */
-  }
-.tisso-popup-desc {
-    font-family: 'Jost', sans-serif; /* Specified in Figma */
-    font-size: 14px;                /* Specified in Figma */
-    font-weight: 300;               /* "Light" weight in Figma */
-    line-height: 1.4;               /* Standard readable height for body text */
-    color: #333;
-    margin: 0;
-    max-width: 146px;               /* Matches the width spec in Figma */
-  }
+  .tisso-color-option { flex: 1; display: flex; align-items: center; padding-left: 12px; border-right: 1px solid #000; font-family: 'Jost', sans-serif; font-size: 13px; font-weight: 300; cursor: pointer; position: relative; }
+  .tisso-color-option:last-child { border-right: none; }
+  .tisso-color-bar { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; display: none; }
+  .tisso-color-option.is-selected .tisso-color-bar { display: block; }
 
- /* --- COLOR SELECTOR GROUP (Component 211) --- */
-  .tisso-popup-selector-group.color-group {
-    width: 271px;
-    height: 64.48px; /* Matches Figma Group Height */
-    margin-bottom: 18px;
-    margin-left: 0; /* Aligned to Left: 20px via parent padding */
-  }
+  .tisso-size-display { padding-left: 12px; font-family: 'Jost', sans-serif; font-size: 13px; font-weight: 300; align-self: center; }
+  .tisso-size-select { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10; }
 
-  .tisso-popup-label {
-    font-family: 'Jost', sans-serif;
-    font-size: 12px;
-    font-weight: 300;
-    line-height: 1;
-    color: #000;
-    margin-bottom: 12px; /* Spacing between label and box */
-    text-transform: capitalize;
-  }
-
-  /* The Split Box Container */
-  .tisso-popup-color-box {
-    display: flex;
-    width: 271px; /* Matches Figma Width */
-    height: 40px; 
-    border: 1px solid #000;
-    box-sizing: border-box;
-    background: #fff;
-  }
-
-  .tisso-color-option {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    position: relative;
-    cursor: pointer;
-    padding-left: 12px;
-    box-sizing: border-box;
-    border-right: 1px solid #000;
-    font-family: 'Jost', sans-serif;
-    font-size: 13px;
-    font-weight: 300;
-    color: #000;
-    background-color: #fff;
-    transition: background-color 0.2s;
-  }
-
-  .tisso-color-option:last-child {
-    border-right: none;
-  }
-  
-  /* Vertical Accent Indicator (Figma Property) */
-  .tisso-color-bar {
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    display: none;
-  }
-
-  /* When selected: show bar and subtle background shift */
-  .tisso-color-option.is-selected .tisso-color-bar {
-    display: block;
-  }
-  
-  .tisso-color-option.is-selected {
-    background-color: #FBFBFB; /* Subtle hint of selection */
-  }
-
-  /* --- SIZE SELECTOR GROUP (Component 213) --- */
-  .tisso-popup-selector-group.size-group {
-    width: 271px;
-    height: 64px; /* Matches Figma Group Height */
-    margin-bottom: 22px;
-    margin-left: 0; 
-  }
-
-  /* Dropdown Container */
-  .tisso-popup-size-box {
-    position: relative;
-    width: 271px; /* Matches Figma Width */
-    height: 40px;
-    border: 1px solid #000;
-    box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: #fff;
-  }
-
-  /* "Choose your size" Text */
-  .tisso-size-display {
-    padding-left: 12px;
-    font-family: 'Jost', sans-serif;
-    font-size: 13px;
-    font-weight: 300;
-    color: #000;
-    pointer-events: none;
-  }
-
-  /* Right Side Arrow Area */
-  .tisso-size-arrow {
-    width: 40px;
-    height: 100%;
-    border-left: 1px solid #000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    pointer-events: none;
-  }
-
-  /* Hidden native select that covers the box */
-  .tisso-size-select {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    cursor: pointer;
-    appearance: none;
-    -webkit-appearance: none;
-    z-index: 10;
-  }
-
-/* --- ADD TO CART BUTTON (Group 1000007810) --- */
-  .tisso-popup-atc-btn {
-    width: 271px;        /* Exact Figma Width */
-    height: 45px;       /* Exact Figma Height */
-    background-color: #000;
-    color: #fff;
-    border: none;
-    border-radius: 0;   /* Square corners as per design */
-    
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 30px;          /* Space between text and arrow */
-    
-    cursor: pointer;
-    box-sizing: border-box;
-    transition: opacity 0.2s ease;
-    
-    /* Center within the 311px card */
-    margin: 10px auto 0; 
-    padding: 0 20px;
-  }
-
-  .tisso-popup-atc-btn:hover {
-    opacity: 0.9;
-  }
-
-  .atc-btn-text {
-    font-family: 'Jost', sans-serif;
-    font-size: 13px;    /* Typical size for these buttons */
-    font-weight: 400;   /* Regular weight */
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-
-  /* Styling for the arrow icon inside the button */
-  .tisso-popup-atc-btn svg {
-    width: 25px;
-    height: 10px;
-    flex-shrink: 0;
-  }
-  /* --- POPUP CARD BASE (311x447 & Shadow) --- */
-  .tisso-popup-card {
-    width: 311px;
-    height: 447px;
-    background-color: #fff;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.20); /* Exact Figma Shadow */
-    padding: 30px 20px 20px 20px;
-    box-sizing: border-box;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    font-family: 'Jost', sans-serif;}
-  @media (max-width: 768px) { .tisso-vision-grid { grid-template-columns: 1fr; } }
- {
-  /* This changes the grid from 1 column to 2 columns on mobile */
-  .tisso-vision-grid { 
-    grid-template-columns: repeat(2, 1fr) !important; 
-    gap: 10px; /* Reduced gap for mobile so images aren't too small */
-  }
-
-  /* Optional: Adjust the main title size for mobile */
-  .tisso-main-title {
-    font-size: 22px;
-    margin-bottom: 20px;
-    padding: 0 10px;
-  }
-
-  /* Optional: Adjust container padding for mobile */
-  .tisso-container {
-    padding: 0 10px;
-  }
-
-  /* Ensure the popup card doesn't overflow on very small screens */
-  .tisso-popup-card {
-    width: 90vw; /* Responsive width on mobile */
-    max-width: 311px;
-    height: auto;
-    min-height: 447px;
-    padding: 25px 15px;
-  }
-}
-  /* --- TYPOGRAPHY MATCHES --- */
-  .tisso-popup-title { font-family: 'Jost', sans-serif; font-weight: 300; font-size: 16px; line-height: 1.2; color: #000; margin-bottom: 4px; }
-  .tisso-popup-price { font-family: 'Lustria', serif; font-weight: 400; font-size: 16px; line-height: 1.2; color: #000; margin-bottom: 10px; }
-  .tisso-popup-desc { font-family: 'Jost', sans-serif; font-weight: 300; font-size: 14px; line-height: 1.4; color: #000; max-width: 146px; margin-bottom: 20px; }
-
-  /* --- CUSTOM SIZE DROPDOWN (Component 213) --- */
-  .size-group { width: 271px; position: relative; margin-bottom: 20px; z-index: 100; }
-  .size-label { font-size: 12px; font-weight: 300; margin-bottom: 8px; display: block; }
-  
-  .tisso-custom-dropdown {
-    width: 271px;
-    background: #fff;
-    border: 1px solid #000;
-    box-sizing: border-box;
-    cursor: pointer;
-    position: relative;
-  }
-
-  .dropdown-header {
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 12px;
-    font-size: 13px;
-    font-weight: 300;
-  }
-
-  /* Arrow icon - flips when open */
-  .dropdown-arrow {
-    width: 40px;
-    height: 40px;
-    border-left: 1px solid #000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.2s;
-  }
-  .is-open .dropdown-arrow { transform: rotate(180deg); }
-
-  /* The List: Matches the 163px height spec from Figma when open */
-  .dropdown-list {
-    display: none;
-    position: absolute;
-    top: 39px; /* Sit on border */
-    left: -1px;
-    width: 271px;
-    height: 123px; /* 163 total - 40 header */
-    background: #fff;
-    border: 1px solid #000;
-    border-top: none;
-    overflow-y: auto;
-    z-index: 110;
-  }
-  .is-open .dropdown-list { display: block; }
-
-  .dropdown-option {
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    font-weight: 300;
-    border-bottom: 1px solid #f0f0f0;
-  }
-  .dropdown-option:last-child { border-bottom: none; }
-  .dropdown-option:hover { background: #f9f9f9; }
-
-  /* --- ADD TO CART (Fixed at Bottom) --- */
+  /* Add to Cart Button */
   .tisso-popup-atc-btn {
     width: 271px;
     height: 45px;
-    background: #000;
+    background-color: #000;
     color: #fff;
-    margin-top: auto; /* Pushes to bottom of 447px card */
+    border: none;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 30px;
-    font-size: 13px;
-    border: none;
     cursor: pointer;
+    margin-top: auto;
+    font-family: 'Jost', sans-serif;
+    font-size: 13px;
+    text-transform: uppercase;
+  }
+
+  /* --- MOBILE VERSION (2 COLUMNS) --- */
+  @media (max-width: 768px) {
+    .tisso-vision-grid { 
+      grid-template-columns: repeat(2, 1fr) !important; 
+      gap: 10px !important; 
+    }
+    .tisso-main-title { font-size: 22px; margin-bottom: 20px; text-align: center; }
+    .tisso-container { padding: 0 10px; }
+    
+    .tisso-popup-card {
+      width: 90vw;
+      max-width: 311px;
+      height: auto;
+      min-height: 447px;
+      padding: 25px 15px;
+    }
   }
 </style>
 
