@@ -317,6 +317,15 @@
     "tisso_vision_grid_EUqaen": {
       "type": "tisso-vision-grid",
       "blocks": {
+        "hotspot_item_rQmRPp": {
+          "type": "hotspot_item",
+          "settings": {
+            "image": "shopify://shop_images/casual-fashion-woman_925x_56b56608-f207-45c1-b677-bb5aa26c1c7a.jpg",
+            "product": "classic-varsity-top",
+            "pos_x": 48,
+            "pos_y": 29
+          }
+        },
         "hotspot_item_fK4Emj": {
           "type": "hotspot_item",
           "settings": {
@@ -325,19 +334,11 @@
             "pos_x": 75,
             "pos_y": 40
           }
-        },
-        "hotspot_item_DPEwyc": {
-          "type": "hotspot_item",
-          "settings": {
-            "product": "",
-            "pos_x": 75,
-            "pos_y": 55
-          }
         }
       },
       "block_order": [
-        "hotspot_item_fK4Emj",
-        "hotspot_item_DPEwyc"
+        "hotspot_item_rQmRPp",
+        "hotspot_item_fK4Emj"
       ],
       "name": "Tisso Vision Grid",
       "settings": {
