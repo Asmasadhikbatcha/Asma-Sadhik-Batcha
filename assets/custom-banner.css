@@ -1,10 +1,10 @@
-/* --- Desktop Figma Sizes & Overflow Fix --- */
+/* --- GLOBAL FIXES --- */
 .custom-banner {
   width: 100%;
   max-width: 1440px;
   margin: 0 auto;
   background: #f5f5f5;
-  overflow: hidden; /* Fixes overflow */
+  overflow: hidden; /* Fixes Desktop Overflow */
   font-family: 'Jost', sans-serif;
 }
 
@@ -14,15 +14,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #f5f5f5;
   border-bottom: 1px solid #d9d9d9;
 }
 
 .cb-hamburger { display: none; flex-direction: column; gap: 4px; cursor: pointer; }
 .cb-hamburger span { width: 22px; height: 2px; background: #000; }
 
-.cb-logo { font-size: 24px; font-weight: 500; color: #000; text-transform: uppercase; }
-.cb-message { font-size: 16px; font-weight: 400; color: #000; }
+.cb-logo { font-size: 24px; font-weight: 500; text-transform: uppercase; }
 
 .cb-top-btn {
   min-width: 180px;
@@ -33,21 +31,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 8px;
 }
 
+/* Photography Section (No overflow) */
 .cb-hero { width: 100%; height: 390px; }
 .cb-hero-image { width: 100%; height: 100%; object-fit: cover; display: block; }
 
+/* Content Grid Fix */
 .cb-content {
-  height: 402px;
-  display: flex; /* Changed to flex for easier alignment */
+  display: grid;
+  grid-template-columns: 459px 1fr; /* Use 1fr to prevent overflow */
   align-items: center;
-  justify-content: space-between;
   padding: 0 50px;
+  height: 402px;
 }
 
-.cb-left { width: 459px; }
 .cb-left h2 {
   font-size: 70px;
   font-weight: 500;
@@ -56,6 +55,8 @@
 }
 
 .cb-description {
+  width: 100%;
+  max-width: 483px;
   font-size: 20px;
   line-height: 1.4;
   margin: 0 0 32px;
@@ -69,23 +70,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
   text-decoration: none;
-  font-size: 16px;
+  gap: 12px;
   font-weight: 500;
 }
 
 .cb-right {
-  width: 890px;
   height: 100%;
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 .cb-side-image { width: 100%; height: 100%; object-fit: contain; }
 
 .cb-strip {
-  height: 30px;
+  height: 35px;
   border-top: 1px solid #d9d9d9;
   display: flex;
   align-items: center;
@@ -94,15 +94,15 @@
   letter-spacing: 1px;
 }
 
-.cb-strip-mobile { display: none; }
+.cb-strip-mobile, .cb-mobile-only { display: none; }
 
-/* --- Mobile Version (Per Mockup 2) --- */
+/* --- MOBILE VERSION (AS PER SCREENSHOT) --- */
 @media screen and (max-width: 990px) {
   .cb-topbar { padding: 0 20px; justify-content: center; position: relative; }
   .cb-hamburger { display: flex; position: absolute; left: 20px; }
-  .cb-message, .cb-top-btn, .cb-hero, .cb-strip-desktop { display: none; }
+  .cb-message, .cb-top-btn, .cb-hero, .cb-desktop-only, .cb-strip-desktop { display: none; }
 
-  .cb-strip-mobile { display: block; font-weight: 500; }
+  .cb-strip-mobile, .cb-mobile-only { display: flex; }
 
   .cb-content {
     display: flex;
@@ -112,33 +112,30 @@
     text-align: center;
   }
 
-  .cb-left { width: 100%; margin-bottom: 20px; }
-  .cb-left h2 { font-size: 42px; width: 100%; height: auto; }
-  .cb-description { width: 100%; font-size: 18px; height: auto; margin-bottom: 0; }
+  .cb-left { width: 100%; }
+  .cb-left h2 { font-size: 38px; width: 100%; height: auto; }
+  .cb-description { font-size: 18px; margin-bottom: 20px; }
 
   .cb-right {
     width: 100%;
     height: auto;
-    flex-direction: column;
-    margin-top: -10px; /* Moves illustration up closer to text */
+    position: relative;
+    padding-bottom: 40px;
   }
 
   .cb-side-image {
-    max-height: 350px;
-    width: 110%; /* Slight bleed for vector style */
+    max-height: 300px;
+    width: 120%; /* Makes image larger for mobile */
   }
 
-  .cb-button {
-    margin-top: -60px; /* OVERLAP EFFECT: Pulls button up over image */
-    z-index: 5;
+  .cb-button.cb-mobile-only {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
     width: 260px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    margin-bottom: 40px;
+    z-index: 10;
   }
 
-  .cb-strip {
-    border-top: none;
-    height: auto;
-    padding: 20px;
-  }
+  .cb-strip { border: none; height: auto; padding: 20px; font-weight: 500; }
 }
