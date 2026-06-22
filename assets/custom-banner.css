@@ -130,10 +130,10 @@
 
   .cb-button.cb-mobile-only {
     position: absolute;
-    bottom: 60px;
+    bottom: 80px;
     left: 50%;
     transform: translateX(-50%);
-    width: 260px;
+    width: 60px;
     z-index: 10;
   }
 
