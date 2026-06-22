@@ -1,194 +1,247 @@
-.custom-banner{
-  width:100%;
-  max-width:1440px;
-  margin:0 auto;
-  background:#f5f5f5;
+/* --- GLOBAL RESET --- */
+* {
+  box-sizing: border-box;
 }
 
-.cb-topbar{
-  height:64px;
-  padding:10px 50px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  background:#f5f5f5;
-  border-bottom:1px solid #d9d9d9;
-  box-sizing:border-box;
+body {
+  margin: 0;
+  padding: 0;
 }
 
-.cb-logo{
-  font-family:'Jost',sans-serif;
-  font-size:24px;
-  font-weight:500;
-  color:#000;
+/* --- MAIN CONTAINER --- */
+.custom-banner {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  background: #f5f5f5;
+  font-family: 'Jost', sans-serif;
 }
 
-.cb-message{
-  font-family:'Jost',sans-serif;
-  font-size:16px;
-  font-weight:400;
-  color:#000;
+/* --- TOPBAR (DESKTOP) --- */
+.cb-topbar {
+  height: 64px;
+  padding: 10px 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f5f5f5;
+  border-bottom: 1px solid #d9d9d9;
+  position: relative;
 }
 
-.cb-top-btn{
-  min-width:180px;
-  height:44px;
-  background:#f4ea2a;
-  color:#000;
-  text-decoration:none;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  transition:all .3s ease;
+.cb-logo {
+  font-size: 24px;
+  font-weight: 500;
+  color: #000;
+  text-transform: uppercase;
 }
 
-.cb-top-btn:hover{
-  transform:translateY(-2px);
+.cb-message {
+  font-size: 16px;
+  font-weight: 400;
+  color: #000;
 }
 
-.cb-hero{
-  width:100%;
-  height:390px;
-  /* overflow:hidden; removed as requested */
+.cb-top-btn {
+  min-width: 180px;
+  height: 44px;
+  background: #f4ea2a;
+  color: #000;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 500;
+  transition: all .3s ease;
 }
 
-.cb-hero-image{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  display:block;
+.cb-top-btn:hover {
+  transform: translateY(-2px);
 }
 
-.cb-content{
-  height:402px;
-  display:grid;
-  grid-template-columns:459px 890px;
-  align-items:center;
-  padding:0 50px;
-  box-sizing:border-box;
+/* --- HERO IMAGE (DESKTOP) --- */
+.cb-hero {
+  width: 100%;
+  height: 390px;
 }
 
-.cb-left{
-  width:459px;
+.cb-hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
-.cb-left h2{
-  font-family:'Jost', sans-serif;
-  font-size:70px;
-  font-weight:500;
-  line-height:100%;
-  letter-spacing:0;
-  color:#000000;
-  width:459px;
-  height:70px;
-  margin:0 0 24px;
+/* --- MAIN CONTENT AREA --- */
+.cb-content {
+  height: 402px;
+  display: grid;
+  grid-template-columns: 459px 890px;
+  align-items: center;
+  padding: 0 50px;
 }
 
-.cb-description{
-  width:483px;
-  height:84px;
-  font-family:'Jost', sans-serif;
-  font-weight:400;
-  font-size:20px;
-  line-height:140%;
-  letter-spacing:0;
-  color:#000;
-  margin:0 0 32px;
+.cb-left {
+  width: 459px;
 }
 
-.cb-description p{
-  margin:0;
+.cb-left h2 {
+  font-size: 70px;
+  font-weight: 500;
+  line-height: 100%;
+  color: #000;
+  width: 459px;
+  height: 70px;
+  margin: 0 0 24px;
 }
 
-.cb-button{
-  width:220px;
-  height:50px;
-  background:#000;
-  color:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:16px;
-  text-decoration:none;
-  font-family:'Jost',sans-serif;
-  font-size:16px;
-  font-weight:500;
-  transition:all .3s ease;
+.cb-description {
+  width: 483px;
+  height: 84px;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 140%;
+  color: #000;
+  margin: 0 0 32px;
 }
 
-.cb-button:hover{
-  transform:translateY(-2px);
+.cb-description p {
+  margin: 0;
 }
 
-.cb-right{
-  width:890px;
-  height:402px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+.cb-button {
+  width: 220px;
+  height: 50px;
+  background: #000;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all .3s ease;
 }
 
-.cb-side-image{
-  width:100%;
-  height:100%;
-  object-fit:contain;
-  display:block;
+.cb-button:hover {
+  transform: translateY(-2px);
 }
 
-.cb-strip{
-  height:22px;
-  border-top:1px solid #d9d9d9;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-family:'Jost',sans-serif;
-  font-size:12px;
-  letter-spacing:1px;
-  text-transform:uppercase;
+.cb-right {
+  width: 890px;
+  height: 402px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-@media screen and (max-width:990px){
-  .cb-topbar{
-    height:auto;
-    padding:20px;
-    flex-direction:column;
-    gap:15px;
+.cb-side-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* --- BOTTOM STRIP --- */
+.cb-strip {
+  height: 22px;
+  border-top: 1px solid #d9d9d9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* --- MOBILE STYLES (AS PER IMAGE 2) --- */
+@media screen and (max-width: 990px) {
+
+  /* 1. Header: Center logo and add hamburger menu */
+  .cb-topbar {
+    height: 60px;
+    padding: 0 20px;
+    justify-content: center;
   }
 
-  .cb-hero{
-    height:auto;
+  /* Create the hamburger menu icon on the left */
+  .cb-topbar::before {
+    content: "≡";
+    position: absolute;
+    left: 20px;
+    font-size: 30px;
+    font-weight: bold;
+    cursor: pointer;
   }
 
-  .cb-content{
-    height:auto;
-    grid-template-columns:1fr;
-    padding:30px 20px;
-    gap:30px;
+  /* Hide the yellow button and middle message as per mobile mockup */
+  .cb-message, 
+  .cb-top-btn {
+    display: none;
   }
 
-  .cb-left{
-    width:100%;
+  /* 2. Hide the top Hero image for mobile */
+  .cb-hero {
+    display: none;
   }
 
-  .cb-left h2{
-    width:100%;
-    font-size:42px;
-    height: auto; /* Adjusted for mobile readability while keeping layout */
+  /* 3. Reorder content: Title -> Desc -> Image -> Button */
+  .cb-content {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    padding: 40px 20px;
+    text-align: center;
+    gap: 0;
   }
 
-  .cb-right{
-    width:100%;
-    height:auto;
+  /* Use display: contents to let children of .cb-left be reordered with the image */
+  .cb-left {
+    display: contents; 
   }
 
-  .cb-side-image{
-    height:auto;
+  .cb-left h2 {
+    order: 1; /* Title first */
+    width: 100%;
+    font-size: 42px;
+    height: auto;
+    margin: 0 0 20px;
   }
 
-  .cb-strip{
-    height:auto;
-    padding:10px;
-    text-align:center;
+  .cb-description {
+    order: 2; /* Description second */
+    width: 100%;
+    height: auto;
+    font-size: 18px;
+    margin: 0 0 30px;
+  }
+
+  .cb-right {
+    order: 3; /* Illustration third */
+    width: 100%;
+    height: auto;
+    margin-bottom: 20px;
+  }
+
+  .cb-side-image {
+    max-height: 300px;
+    margin: 0 auto;
+  }
+
+  .cb-button {
+    order: 4; /* Shop Now button last */
+    margin: 20px auto 0;
+    width: 280px; /* Slightly wider button for mobile */
+  }
+
+  /* 4. Bottom Strip adjustments */
+  .cb-strip {
+    height: auto;
+    padding: 15px;
+    text-align: center;
+    font-size: 10px;
+    border-top: none;
   }
 }
