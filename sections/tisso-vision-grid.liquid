@@ -316,9 +316,6 @@
     height: 10px;
     flex-shrink: 0;
   }
-
-  @media (max-width: 768px) { .tisso-vision-grid { grid-template-columns: 1fr; } }
-  <style>
   /* --- POPUP CARD BASE (311x447 & Shadow) --- */
   .tisso-popup-card {
     width: 311px;
@@ -330,9 +327,36 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    font-family: 'Jost', sans-serif;
+    font-family: 'Jost', sans-serif;}
+  @media (max-width: 768px) { .tisso-vision-grid { grid-template-columns: 1fr; } }
+ {
+  /* This changes the grid from 1 column to 2 columns on mobile */
+  .tisso-vision-grid { 
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 10px; /* Reduced gap for mobile so images aren't too small */
   }
 
+  /* Optional: Adjust the main title size for mobile */
+  .tisso-main-title {
+    font-size: 22px;
+    margin-bottom: 20px;
+    padding: 0 10px;
+  }
+
+  /* Optional: Adjust container padding for mobile */
+  .tisso-container {
+    padding: 0 10px;
+  }
+
+  /* Ensure the popup card doesn't overflow on very small screens */
+  .tisso-popup-card {
+    width: 90vw; /* Responsive width on mobile */
+    max-width: 311px;
+    height: auto;
+    min-height: 447px;
+    padding: 25px 15px;
+  }
+}
   /* --- TYPOGRAPHY MATCHES --- */
   .tisso-popup-title { font-family: 'Jost', sans-serif; font-weight: 300; font-size: 16px; line-height: 1.2; color: #000; margin-bottom: 4px; }
   .tisso-popup-price { font-family: 'Lustria', serif; font-weight: 400; font-size: 16px; line-height: 1.2; color: #000; margin-bottom: 10px; }
