@@ -317,109 +317,65 @@
     flex-shrink: 0;
   }
 
-  @media (max-width: 768px) { .tisso-vision-grid { grid-template-columns: 2fr; } }
-  
+ /* --- CORRECT MOBILE & POPUP FIX --- */
+  @media (max-width: 768px) {
+    /* 1. Fix the 2-Column Grid */
     .tisso-vision-grid { 
       grid-template-columns: repeat(2, 1fr) !important; 
       gap: 10px !important; 
     }
 
-  /* --- POPUP CARD BASE (311x447 & Shadow) --- */
-  .tisso-popup-card {
-    width: 311px;
-    height: 447px;
-    background-color: #fff;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.20); /* Exact Figma Shadow */
-    padding: 30px 20px 20px 20px;
-    box-sizing: border-box;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    font-family: 'Jost', sans-serif;
+    /* 2. Fix the Popup so it isn't hidden/cut off */
+    .tisso-popup-card {
+      width: 92vw !important;      /* Use 92% of screen width */
+      max-width: 311px !important; 
+      height: auto !important;     /* Let height be flexible */
+      max-height: 90vh !important; /* Don't let it be taller than the screen */
+      overflow-y: auto !important; /* Add scroll if content is too long */
+      padding: 30px 15px 20px 15px !important;
+      margin: 0 auto;
+    }
+
+    /* 3. Ensure Close Button is visible and clickable */
+    .tisso-popup-close {
+      top: 10px !important;
+      right: 10px !important;
+      font-size: 24px !important;
+      z-index: 101 !important;
+    }
+
+    /* 4. Fix Product Info for smaller screens */
+    .tisso-popup-info-row {
+      flex-direction: row;
+      gap: 10px !important;
+    }
+    .tisso-popup-img {
+      width: 100px !important;
+      height: 120px !important;
+    }
+
+    /* 5. Ensure Selectors and Buttons fit */
+    .tisso-popup-selector-group, 
+    .tisso-popup-color-box, 
+    .tisso-popup-size-box, 
+    .tisso-popup-atc-btn {
+      width: 100% !important; /* Stretch to fill the 92vw card */
+    }
+    
+    .size-group {
+      width: 100% !important;
+    }
+    
+    .tisso-custom-dropdown {
+      width: 100% !important;
+    }
   }
 
-  /* --- TYPOGRAPHY MATCHES --- */
-  .tisso-popup-title { font-family: 'Jost', sans-serif; font-weight: 300; font-size: 16px; line-height: 1.2; color: #000; margin-bottom: 4px; }
-  .tisso-popup-price { font-family: 'Lustria', serif; font-weight: 400; font-size: 16px; line-height: 1.2; color: #000; margin-bottom: 10px; }
-  .tisso-popup-desc { font-family: 'Jost', sans-serif; font-weight: 300; font-size: 14px; line-height: 1.4; color: #000; max-width: 146px; margin-bottom: 20px; }
-
-  /* --- CUSTOM SIZE DROPDOWN (Component 213) --- */
-  .size-group { width: 271px; position: relative; margin-bottom: 20px; z-index: 100; }
-  .size-label { font-size: 12px; font-weight: 300; margin-bottom: 8px; display: block; }
-  
-  .tisso-custom-dropdown {
-    width: 271px;
-    background: #fff;
-    border: 1px solid #000;
-    box-sizing: border-box;
-    cursor: pointer;
-    position: relative;
-  }
-
-  .dropdown-header {
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 12px;
-    font-size: 13px;
-    font-weight: 300;
-  }
-
-  /* Arrow icon - flips when open */
-  .dropdown-arrow {
-    width: 40px;
-    height: 40px;
-    border-left: 1px solid #000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.2s;
-  }
-  .is-open .dropdown-arrow { transform: rotate(180deg); }
-
-  /* The List: Matches the 163px height spec from Figma when open */
-  .dropdown-list {
-    display: none;
-    position: absolute;
-    top: 39px; /* Sit on border */
-    left: -1px;
-    width: 271px;
-    height: 123px; /* 163 total - 40 header */
-    background: #fff;
-    border: 1px solid #000;
-    border-top: none;
-    overflow-y: auto;
-    z-index: 110;
-  }
-  .is-open .dropdown-list { display: block; }
-
-  .dropdown-option {
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    font-weight: 300;
-    border-bottom: 1px solid #f0f0f0;
-  }
-  .dropdown-option:last-child { border-bottom: none; }
-  .dropdown-option:hover { background: #f9f9f9; }
-
-  /* --- ADD TO CART (Fixed at Bottom) --- */
-  .tisso-popup-atc-btn {
-    width: 271px;
-    height: 45px;
-    background: #000;
-    color: #fff;
-    margin-top: auto; /* Pushes to bottom of 447px card */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 30px;
-    font-size: 13px;
-    border: none;
-    cursor: pointer;
+  /* --- DESKTOP REMAINS 3 COLUMNS --- */
+  @media (min-width: 769px) {
+    .tisso-vision-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
   }
 </style>
 
