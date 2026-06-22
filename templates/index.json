@@ -306,16 +306,49 @@
         "hero_image": "shopify://shop_images/Frame.png",
         "heading": "The Gift Guide",
         "description": "<p>Discover Joy: Your Ultimate Holiday Gift Destination. Explore our curated selection and find the perfect gifts to delight your loved ones this holiday season.</p>",
+        "description_mobile": "<p>Discover Joy: Your Ultimate Holiday Gift Destination.</p>",
         "button_text": "SHOP NOW",
         "button_link": "shopify://collections/all",
         "side_image": "shopify://shop_images/Frame_1.png",
-        "bottom_text": "SUSTAINABLE, ETHICALLY MADE CLOTHES IN SIZES XXS TO 6XL"
+        "bottom_text": "SUSTAINABLE, ETHICALLY MADE CLOTHES IN SIZES XXS TO 6XL",
+        "bottom_text_mobile": "SUSTAINABLE, ETHICALLY MADE ACTIVEWEAR"
+      }
+    },
+    "tisso_vision_grid_EUqaen": {
+      "type": "tisso-vision-grid",
+      "blocks": {
+        "hotspot_item_fK4Emj": {
+          "type": "hotspot_item",
+          "settings": {
+            "image": "shopify://shop_images/young-female-models-denim_925x_44c2cf9e-4030-4347-9d4a-f0e4a1479b4a.jpg",
+            "product": "dark-denim-top",
+            "pos_x": 75,
+            "pos_y": 40
+          }
+        },
+        "hotspot_item_DPEwyc": {
+          "type": "hotspot_item",
+          "settings": {
+            "product": "",
+            "pos_x": 75,
+            "pos_y": 55
+          }
+        }
+      },
+      "block_order": [
+        "hotspot_item_fK4Emj",
+        "hotspot_item_DPEwyc"
+      ],
+      "name": "Tisso Vision Grid",
+      "settings": {
+        "title": "Tisso vison in the wild"
       }
     }
   },
   "order": [
     "hero_jVaWmY",
     "product_list_fa6P9H",
-    "custom_banner_egrRYd"
+    "custom_banner_egrRYd",
+    "tisso_vision_grid_EUqaen"
   ]
 }
