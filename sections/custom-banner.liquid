@@ -1,7 +1,6 @@
 {{ 'custom-banner.css' | asset_url | stylesheet_tag }}
 
 <section class="custom-banner">
-  <!-- Top Bar -->
   <div class="cb-topbar">
     <div class="cb-hamburger"><span></span><span></span><span></span></div>
     <div class="cb-logo">{{ section.settings.logo_text }}</div>
@@ -10,31 +9,21 @@
       {{ section.settings.top_button_text }} <span>→</span>
     </a>
   </div>
-
-  <!-- Hero Image (Photography) - Desktop Only -->
   <div class="cb-hero">
     {% if section.settings.hero_image != blank %}
       {{ section.settings.hero_image | image_url: width: 2000 | image_tag: loading: 'lazy', class: 'cb-hero-image' }}
     {% endif %}
   </div>
-
-  <!-- Content Grid -->
   <div class="cb-content">
     <div class="cb-left">
       <h2>{{ section.settings.heading }}</h2>
-      
-      <!-- DESKTOP DESCRIPTION -->
-      <div class="cb-description cb-desktop-only">
+            <div class="cb-description cb-desktop-only">
         {{ section.settings.description }}
       </div>
-
-      <!-- MOBILE DESCRIPTION -->
       <div class="cb-description cb-mobile-only">
         {{ section.settings.description_mobile }}
       </div>
-      
-      <!-- Button for Desktop -->
-      <a href="{{ section.settings.button_link }}" class="cb-button cb-desktop-only">
+            <a href="{{ section.settings.button_link }}" class="cb-button cb-desktop-only">
         {{ section.settings.button_text }} <span>→</span>
       </a>
     </div>
@@ -44,14 +33,11 @@
         {{ section.settings.side_image | image_url: width: 1200 | image_tag: loading: 'lazy', class: 'cb-side-image' }}
       {% endif %}
       
-      <!-- Button for Mobile (Overlapping Image) -->
       <a href="{{ section.settings.button_link }}" class="cb-button cb-mobile-only">
         {{ section.settings.button_text }} <span>→</span>
       </a>
     </div>
   </div>
-
-  <!-- Footer Strip -->
   <div class="cb-strip">
     <span class="cb-strip-desktop">{{ section.settings.bottom_text }}</span>
     <span class="cb-strip-mobile">{{ section.settings.bottom_text_mobile }}</span>
