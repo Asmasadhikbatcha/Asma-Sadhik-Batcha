@@ -317,6 +317,15 @@
     "tisso_vision_grid_EUqaen": {
       "type": "tisso-vision-grid",
       "blocks": {
+        "hotspot_item_byhhpJ": {
+          "type": "hotspot_item",
+          "settings": {
+            "image": "shopify://shop_images/leather-jacket-and-tea_925x_2490cde1-7e61-4151-9a65-de8a763bc701.jpg",
+            "product": "classic-leather-jacket",
+            "pos_x": 73,
+            "pos_y": 20
+          }
+        },
         "hotspot_item_rQmRPp": {
           "type": "hotspot_item",
           "settings": {
@@ -337,6 +346,7 @@
         }
       },
       "block_order": [
+        "hotspot_item_byhhpJ",
         "hotspot_item_rQmRPp",
         "hotspot_item_fK4Emj"
       ],
