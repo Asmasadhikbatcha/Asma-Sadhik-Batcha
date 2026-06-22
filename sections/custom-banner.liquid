@@ -22,7 +22,16 @@
   <div class="cb-content">
     <div class="cb-left">
       <h2>{{ section.settings.heading }}</h2>
-      <div class="cb-description">{{ section.settings.description }}</div>
+      
+      <!-- DESKTOP DESCRIPTION -->
+      <div class="cb-description cb-desktop-only">
+        {{ section.settings.description }}
+      </div>
+
+      <!-- MOBILE DESCRIPTION -->
+      <div class="cb-description cb-mobile-only">
+        {{ section.settings.description_mobile }}
+      </div>
       
       <!-- Button for Desktop -->
       <a href="{{ section.settings.button_link }}" class="cb-button cb-desktop-only">
@@ -57,9 +66,20 @@
     { "type": "text", "id": "top_message", "label": "Top Message", "default": "Find the ideal gift for your loved ones." },
     { "type": "text", "id": "top_button_text", "label": "Top Button Text", "default": "CHOOSE GIFT" },
     { "type": "url", "id": "top_button_link", "label": "Top Button Link" },
-    { "type": "image_picker", "id": "hero_image", "label": "Hero Photography (Desktop)" },
+    { "type": "image_picker", "id": "hero_image", "label": "Hero Photography (Desktop Only)" },
     { "type": "text", "id": "heading", "label": "Heading", "default": "The Gift Guide" },
-    { "type": "richtext", "id": "description", "label": "Description", "default": "<p>Discover Joy: Your Ultimate Holiday Gift Destination.</p>" },
+    { 
+      "type": "richtext", 
+      "id": "description", 
+      "label": "Description (Desktop)", 
+      "default": "<p>Discover Joy: Your Ultimate Holiday Gift Destination. Explore our curated selection and find the perfect gifts to delight your loved ones this holiday season.</p>" 
+    },
+    { 
+      "type": "richtext", 
+      "id": "description_mobile", 
+      "label": "Description (Mobile)", 
+      "default": "<p>Discover Joy: Your Ultimate Holiday Gift Destination.</p>" 
+    },
     { "type": "text", "id": "button_text", "label": "Button Text", "default": "SHOP NOW" },
     { "type": "url", "id": "button_link", "label": "Button Link" },
     { "type": "image_picker", "id": "side_image", "label": "Illustration Image" },
