@@ -1,3 +1,4 @@
+
 <link href="https://fonts.googleapis.com/css2?family=Lustria&display=swap" rel="stylesheet">
 <div class="tisso-vision-wrapper section-{{ section.id }}" id="TissoVisionGrid">
   <div class="tisso-container">
@@ -26,7 +27,6 @@
                 <span class="hotspot-symbol">+</span>
               </button>
 
-              <!-- This overlay now uses position: fixed to be universal -->
               <div class="tisso-popup-overlay js-popup-overlay">
                 <div class="tisso-popup-card js-popup-card">
                 </div>
@@ -58,23 +58,18 @@
   .tisso-hotspot.is-active { background: #000; }
   .tisso-hotspot.is-active .hotspot-symbol { color: #fff; font-size: 22px; }
 
-  /* ADJUSTMENT 1: Universal Centered Pop-up */
   .tisso-popup-overlay {
-    position: fixed; /* Fixed to viewport, not grid item */
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-color: rgba(0, 0, 0, 0.4); /* Darker backdrop for focus */
-    z-index: 9999; /* Over everything */
-    display: flex; align-items: center; justify-content: center;
-    opacity: 0; visibility: hidden; transition: opacity 0.3s ease;
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(255, 255, 255, 0.25);
+    z-index: 50; display: flex; align-items: center; justify-content: center;
+    opacity: 0; visibility: hidden; transition: opacity 0.2s ease, visibility 0.2s ease;
   }
   .tisso-popup-overlay.is-open { opacity: 1; visibility: visible; }
-  
-  .tisso-popup-card {
+ .tisso-popup-card {
     width: 311px;
-    height: auto;
-    min-height: 447px;
+    height: 447px;
     background-color: #fff;
-    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.15); 
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.20); 
     padding: 35px 20px 25px 20px;
     box-sizing: border-box;
     position: relative;
@@ -84,45 +79,299 @@
     cursor: default;
   }
 
-  .tisso-popup-close {
-    position: absolute; top: 12px; right: 15px; background: transparent; border: none;
-    font-size: 24px; font-weight: 300; line-height: 1; color: #000; cursor: pointer; padding: 4px;
+ .tisso-popup-card {
+    width: 311px;
+    height: 447px; 
+    background-color: #fff;
+    border-radius: 0;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2); 
+    
+    padding: 35px 20px 25px 20px;
+    box-sizing: border-box;
+    position: relative;
+    text-align: left;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    line-height: normal;
+    cursor: default;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; 
   }
 
-  /* Inner elements preserved from your original styling */
+  .tisso-popup-atc-btn {
+    margin-top: auto; 
+    width: 100%; 
+    height: 45px; 
+    background-color: #000; 
+    color: #fff; 
+    border: none;
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 15px; 
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .tisso-popup-close {
+    position: absolute; top: 12px; right: 15px; background: transparent; border: none;
+    font-size: 18px; font-weight: 300; line-height: 1; color: #000; cursor: pointer; padding: 4px;
+  }
+
   .tisso-popup-info-row { display: flex; gap: 15px; align-items: flex-start; margin-bottom: 20px; width: 100%; }
   .tisso-popup-img { width: 120px; height: 140px; object-fit: cover; flex-shrink: 0; display: block; border: 1px solid #f0f0f0; }
   .tisso-popup-text-col { flex: 1; display: flex; flex-direction: column; text-align: left; }
-  .tisso-popup-title { font-family: 'Jost', sans-serif; font-size: 16px; font-weight: 300; margin-bottom: 4px; }
-  .tisso-popup-price { font-family: 'Lustria', serif; font-size: 16px; font-weight: 400; margin-bottom: 12px; }
-  .tisso-popup-desc { font-family: 'Jost', sans-serif; font-size: 14px; font-weight: 300; line-height: 1.4; color: #333; margin: 0; }
   
-  .tisso-popup-selector-group { width: 100%; margin-bottom: 18px; }
-  .tisso-popup-label { font-family: 'Jost', sans-serif; font-size: 12px; font-weight: 300; margin-bottom: 8px; display: block; }
-  
-  .tisso-popup-color-box { display: flex; border: 1px solid #000; width: 100%; height: 40px; }
-  .tisso-color-option { flex: 1; display: flex; align-items: center; cursor: pointer; padding-left: 12px; border-right: 1px solid #000; font-size: 13px; font-family: 'Jost'; }
-  .tisso-color-option:last-child { border-right: none; }
-  .tisso-color-option.is-selected { background-color: #FBFBFB; font-weight: 500; }
-  .tisso-color-bar { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; display: none; }
-  .tisso-color-option.is-selected .tisso-color-bar { display: block; }
+  .tisso-popup-title {
+    font-family: 'Jost', sans-serif; 
+    font-size: 16px;                
+    font-weight: 300;               
+    line-height: 1.2;               
+    color: #000;
+    margin-bottom: 4px;             
+    text-transform: none;       
+  }
+.tisso-popup-price {
+    font-family: 'Lustria', serif; 
+    font-size: 16px;               
+    font-weight: 400;              
+    line-height: 1.2;           
+    color: #000;
+    margin-bottom: 12px;        
+  }
+.tisso-popup-desc {
+    font-family: 'Jost', sans-serif; 
+    font-size: 14px;                
+    font-weight: 300;             
+    line-height: 1.4;              
+    color: #333;
+    margin: 0;
+    max-width: 146px;             
+  }
+  .tisso-popup-selector-group.color-group {
+    width: 271px;
+    height: 64.48px; 
+    margin-bottom: 18px;
+    margin-left: 0;
+  }
 
-  .tisso-popup-size-box { position: relative; width: 100%; height: 40px; border: 1px solid #000; display: flex; align-items: center; }
-  .tisso-size-display { padding-left: 12px; font-family: 'Jost'; font-size: 13px; }
-  .tisso-size-arrow { width: 40px; height: 100%; border-left: 1px solid #000; margin-left: auto; display: flex; align-items: center; justify-content: center; }
-  .tisso-size-select { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 2; }
+  .tisso-popup-label {
+    font-family: 'Jost', sans-serif;
+    font-size: 12px;
+    font-weight: 300;
+    line-height: 1;
+    color: #000;
+    margin-bottom: 12px;
+    text-transform: capitalize;
+  }
+
+  .tisso-popup-color-box {
+    display: flex;
+    width: 271px; 
+    height: 40px; 
+    border: 1px solid #000;
+    box-sizing: border-box;
+    background: #fff;
+  }
+
+  .tisso-color-option {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    position: relative;
+    cursor: pointer;
+    padding-left: 12px;
+    box-sizing: border-box;
+    border-right: 1px solid #000;
+    font-family: 'Jost', sans-serif;
+    font-size: 13px;
+    font-weight: 300;
+    color: #000;
+    background-color: #fff;
+    transition: background-color 0.2s;
+  }
+
+  .tisso-color-option:last-child {
+    border-right: none;
+  }
+
+  .tisso-color-bar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    display: none;
+  }
+
+  .tisso-color-option.is-selected .tisso-color-bar {
+    display: block;
+  }
+  
+  .tisso-color-option.is-selected {
+    background-color: #FBFBFB; 
+  }
+
+  .tisso-popup-selector-group.size-group {
+    width: 271px;
+    height: 64px; 
+    margin-bottom: 22px;
+    margin-left: 0; 
+  }
+
+
+  .tisso-popup-size-box {
+    position: relative;
+    width: 271px; 
+    height: 40px;
+    border: 1px solid #000;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+  }
+
+  .tisso-size-display {
+    padding-left: 12px;
+    font-family: 'Jost', sans-serif;
+    font-size: 13px;
+    font-weight: 300;
+    color: #000;
+    pointer-events: none;
+  }
+
+  .tisso-size-arrow {
+    width: 40px;
+    height: 100%;
+    border-left: 1px solid #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  .tisso-size-select {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    z-index: 10;
+  }
 
   .tisso-popup-atc-btn {
-    width: 100%; height: 45px; background-color: #000; color: #fff; border: none;
-    display: flex; align-items: center; justify-content: center; gap: 20px;
-    cursor: pointer; margin-top: 10px; transition: opacity 0.2s;
-  }
-  .atc-btn-text { font-family: 'Jost'; font-size: 13px; letter-spacing: 1px; }
+    width: 271px;        
+    height: 45px;      
+    background-color: #000;
+    color: #fff;
+    border: none;
+    border-radius: 0;  
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;       
+    
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: opacity 0.2s ease;
+    
 
-  @media (max-width: 768px) {
-    .tisso-vision-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
-    .tisso-popup-card { width: 90vw !important; }
+    margin: 10px auto 0; 
+    padding: 0 20px;
   }
+
+  .tisso-popup-atc-btn:hover {
+    opacity: 0.9;
+  }
+
+  .atc-btn-text {
+    font-family: 'Jost', sans-serif;
+    font-size: 13px;
+    font-weight: 400;   
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .tisso-popup-atc-btn svg {
+    width: 25px;
+    height: 10px;
+    flex-shrink: 0;
+  }
+
+@media (max-width: 768px) {
+  
+  .tisso-vision-grid { 
+    grid-template-columns: repeat(2, 1fr) !important; 
+    gap: 10px !important; 
+    overflow: visible !important; 
+  }
+
+
+  .tisso-popup-overlay {
+    position: fixed !important;
+    top: 0; left: 0; 
+    width: 100vw; height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5) !important; 
+    z-index: 9999 !important;
+  }
+
+  .tisso-popup-card {
+    width: 92vw !important;    
+    max-width: 311px !important; 
+    height: auto !important;     
+    max-height: 90vh !important; 
+    overflow-y: auto !important; 
+    padding: 30px 15px 20px 15px !important;
+    border-radius: 4px !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
+  }
+
+
+  .tisso-popup-close {
+    top: 10px !important;
+    right: 10px !important;
+    font-size: 26px !important;
+    padding: 10px !important;
+    z-index: 10000 !important;
+  }
+
+  .tisso-popup-info-row {
+    gap: 10px !important;
+  }
+  .tisso-popup-img {
+    width: 90px !important;  
+    height: 110px !important;
+  }
+  .tisso-popup-desc {
+    max-width: 100% !important;
+    font-size: 13px !important;
+  }
+
+  .tisso-popup-selector-group, 
+  .tisso-popup-color-box, 
+  .tisso-popup-size-box, 
+  .tisso-popup-atc-btn {
+    width: 100% !important;
+  }
+
+  .tisso-popup-atc-btn {
+    gap: 20px !important;
+  }
+  .tisso-main-title {
+    text-align: center !important;
+    width: 100% !important;
+    font-family: 'Lustria', serif; 
+    font-size: 24px !important; 
+    margin-bottom: 20px !important;
+    padding: 0 10px !important;
+  }
+}
 </style>
 
 <script>
@@ -138,7 +387,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     hotspot.addEventListener('click', async (e) => {
       e.stopPropagation();
-      // Close any other open popups
       document.querySelectorAll('.js-popup-overlay').forEach(o => o.classList.remove('is-open'));
       document.querySelectorAll('.js-hotspot').forEach(h => { h.classList.remove('is-active'); h.style.display = 'flex'; });
 
@@ -200,7 +448,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>` : ''}
 
       ${sizeOpt ? `
-        <div class="tisso-popup-selector-group">
+        <div class="tisso-popup-selector-group" style="margin-bottom: 22px;">
           <label class="tisso-popup-label">${sizeOpt.name}</label>
           <div class="tisso-popup-size-box">
             <div class="tisso-size-display js-size-val">Choose your size</div>
@@ -208,15 +456,13 @@ document.addEventListener('DOMContentLoaded', () => {
               <option value="" disabled selected>Choose your size</option>
               ${sizeOpt.values.map(v => `<option value="${v.trim()}">${v}</option>`).join('')}
             </select>
-            <div class="tisso-size-arrow">▼</div>
           </div>
         </div>` : ''}
 
       <button class="tisso-popup-atc-btn js-add-to-cart">
         <span class="atc-btn-text">ADD TO CART</span>
-        <svg viewBox="0 0 25 10"><path d="M0 5h24m0 0l-4-4m4 4l-4 4" stroke="currentColor" fill="none"/></svg>
       </button>
-      <div class="js-feedback-msg" style="margin-top: 12px; font-size: 12px; text-align: center; font-family: 'Jost';"></div>
+      <div class="js-feedback-msg" style="margin-top: 8px; font-size: 12px; text-align: center; font-family: 'Jost';"></div>
     `;
 
     // Event Listeners
@@ -231,7 +477,6 @@ document.addEventListener('DOMContentLoaded', () => {
     cardEl.querySelector('.js-add-to-cart').onclick = (e) => submitAddToCart(product, cardEl, e.currentTarget);
   }
 
-  /* ADJUSTMENT 2: Automatic Product Addition Logic */
   async function submitAddToCart(product, cardEl, btnEl) {
     const feedback = cardEl.querySelector('.js-feedback-msg');
     const selectedColor = cardEl.querySelector('.js-color-opt.is-selected')?.getAttribute('data-value');
@@ -245,8 +490,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     btnEl.disabled = true;
     btnEl.querySelector('.atc-btn-text').textContent = 'ADDING...';
-
-    // Find the correct variant for the current product
     const variant = product.variants.find(v => {
       const vOpts = v.options.map(o => o.toLowerCase().trim());
       const hasColor = selectedColor ? vOpts.includes(selectedColor.toLowerCase().trim()) : true;
@@ -260,25 +503,18 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Build the items array
     let items = [{ id: variant.id, quantity: 1 }];
 
-    // REQUIREMENT: If Black + M is selected, add Soft Winter Jacket
-    const isBlack = selectedColor?.toLowerCase() === 'black';
-    const isMSize = selectedSize?.toLowerCase() === 'm' || selectedSize?.toLowerCase() === 'medium';
-
-    if (isBlack && isMSize) {
+    if (selectedColor?.toLowerCase() === 'black' && selectedSize?.toLowerCase() === 'medium') {
       try {
         const jRes = await fetch('/products/soft-winter-jacket.js');
         if (jRes.ok) {
           const jData = await jRes.json();
-          // Adding the first available variant of the jacket
           items.push({ id: jData.variants[0].id, quantity: 1 });
         }
-      } catch(e) { console.error("Bonus product fetch failed", e); }
+      } catch(e) { console.log("Bonus product fetch failed"); }
     }
 
-    // POST to Shopify Cart API
     try {
       const response = await fetch('/cart/add.js', {
         method: 'POST',
@@ -287,15 +523,13 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       if (response.ok) {
-        feedback.style.color = 'green';
-        feedback.textContent = 'Added to cart!';
+        feedback.style.color = 'black';
+        feedback.textContent = 'Product added to cart!';
         btnEl.querySelector('.atc-btn-text').textContent = 'ADDED';
     
-        // Refresh cart page or trigger theme drawer
         if (window.location.pathname.includes('cart')) {
           window.location.reload();
         } else {
-          // Standard Shopify theme events for AJAX carts
           document.dispatchEvent(new CustomEvent('cart:updated'));
           document.dispatchEvent(new CustomEvent('ajaxProduct:added'));
         }
