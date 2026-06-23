@@ -418,7 +418,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   async function populatePopup(handle, cardEl, overlayEl, hotspotEl) {
-    cardEl.innerHTML = `<div style="padding: 40px 0; text-align: center; font-family: 'Jost';">Loading Product...</div>`;
+    cardEl.innerHTML = `<div style="padding: 40px 0; text-align: center; font-family: 'Jost';">Loading...</div>`;
     try {
       const res = await fetch(`/products/${handle}.js`);
       const product = await res.json();
@@ -471,9 +471,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       <button class="tisso-popup-atc-btn js-add-to-cart">
         <span class="atc-btn-text">ADD TO CART</span>
-        <svg viewBox="0 0 25 10" width="25" style="fill:none;"><path d="M0 5h24m0 0l-4-4m4 4l-4 4" stroke="currentColor"/></svg>
+        <svg viewBox="0 0 25 10" width="25" fill="none"><path d="M0 5h24m0 0l-4-4m4 4l-4 4" stroke="currentColor"/></svg>
       </button>
-      <div class="js-feedback-msg" style="margin-top: 12px; font-size: 11px; text-align: center; font-family: 'Jost';"></div>
+      <div class="js-feedback-msg" style="margin-top: 12px; font-size: 12px; text-align: center; font-family: 'Jost';"></div>
     `;
 
     cardEl.querySelector('.js-card-close').onclick = () => { 
@@ -490,10 +490,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sizeSel = cardEl.querySelector('.js-size-sel');
     if(sizeSel) sizeSel.onchange = () => cardEl.querySelector('.js-size-val').textContent = sizeSel.value;
 
-    cardEl.querySelector('.js-add-to-cart').onclick = (e) => {
-      e.preventDefault();
-      submitAddToCart(product, cardEl, e.currentTarget);
-    };
+    cardEl.querySelector('.js-add-to-cart').onclick = (e) => submitAddToCart(product, cardEl, e.currentTarget);
   }
 
   async function submitAddToCart(product, cardEl, btnEl) {
@@ -503,82 +500,70 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!selectedSize) {
       feedback.style.color = 'red';
-      feedback.textContent = 'Please select a size first.';
+      feedback.textContent = 'Please select a size.';
       return;
     }
 
     btnEl.disabled = true;
-    const originalBtnText = btnEl.querySelector('.atc-btn-text').textContent;
     btnEl.querySelector('.atc-btn-text').textContent = 'ADDING...';
 
-    // Improved Variant Finder (Case Insensitive)
+    // 1. Find correct variant for main product
     const variant = product.variants.find(v => {
       const vOpts = v.options.map(o => o.toLowerCase().trim());
-      const cMatch = selectedColor ? vOpts.includes(selectedColor.toLowerCase().trim()) : true;
-      const sMatch = vOpts.includes(selectedSize.toLowerCase().trim());
-      return cMatch && sMatch;
+      const hasColor = selectedColor ? vOpts.includes(selectedColor.toLowerCase().trim()) : true;
+      const hasSize = vOpts.includes(selectedSize.toLowerCase().trim());
+      return hasColor && hasSize;
     });
 
     if (!variant) {
-      console.error("Variant mismatch. Selected:", selectedColor, selectedSize, "Product Variants:", product.variants);
-      feedback.textContent = "This combination is not available.";
+      feedback.textContent = "Combination not found.";
       btnEl.disabled = false;
-      btnEl.querySelector('.atc-btn-text').textContent = originalBtnText;
       return;
     }
 
-    let itemsToAdd = [{ id: variant.id, quantity: 1 }];
+    // 2. Build items array
+    let items = [{ id: variant.id, quantity: 1 }];
 
-    // Logic for Automatic Add: Black + Medium
+    // 3. Logic for Automatic Jacket: Color=Black AND Size=M/Medium
     const isBlack = selectedColor?.toLowerCase().trim() === 'black';
-    const isMedium = selectedSize?.toLowerCase().trim() === 'm' || selectedSize?.toLowerCase().trim() === 'medium';
+    const isM = selectedSize?.toLowerCase().trim() === 'm' || selectedSize?.toLowerCase().trim() === 'medium';
 
-    if (isBlack && isMedium) {
+    if (isBlack && isM) {
       try {
+        // Fetching handle 'dark-winter-jacket' based on your store screenshot
         const jRes = await fetch('/products/dark-winter-jacket.js');
         if (jRes.ok) {
           const jData = await jRes.json();
-          const jacketVariant = jData.variants.find(v => v.available) || jData.variants[0];
-          itemsToAdd.push({ id: jacketVariant.id, quantity: 1 });
-          console.log("Adding bonus product: dark-winter-jacket");
+          // Add the first variant of the jacket
+          items.push({ id: jData.variants[0].id, quantity: 1 });
         }
-      } catch(e) { console.warn("Could not fetch bonus product."); }
+      } catch(e) { console.warn("Could not find jacket handle."); }
     }
 
-    // POST Request
+    // 4. Send to Cart API
     try {
-      const response = await fetch(window.Shopify.routes.root + 'cart/add.js', {
+      const response = await fetch('/cart/add.js', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: itemsToAdd })
+        body: JSON.stringify({ items: items })
       });
-
-      const result = await response.json();
 
       if (response.ok) {
         feedback.style.color = 'green';
-        feedback.textContent = 'Success! Added to cart.';
-        btnEl.querySelector('.atc-btn-text').textContent = 'ADDED';
+        feedback.textContent = 'Redirecting to cart...';
         
-        // Trigger Shopify events for the cart drawer
-        document.dispatchEvent(new CustomEvent('cart:updated', { detail: { cart: result } }));
-        document.dispatchEvent(new CustomEvent('ajaxProduct:added'));
-
-        if (window.location.pathname.includes('cart')) window.location.reload();
+        // 5. REDIRECT: This ensures both products are seen immediately
+        window.location.href = '/cart';
       } else {
-        // This usually triggers if Available is 0
+        const err = await response.json();
         feedback.style.color = 'red';
-        feedback.textContent = result.description || "Out of stock.";
-        console.error("Shopify API Error:", result);
+        feedback.textContent = err.description || "Out of stock.";
+        btnEl.disabled = false;
+        btnEl.querySelector('.atc-btn-text').textContent = 'ADD TO CART';
       }
     } catch (e) {
-      feedback.textContent = "Connection error.";
-      console.error(e);
-    } finally {
-      setTimeout(() => {
-        btnEl.disabled = false;
-        btnEl.querySelector('.atc-btn-text').textContent = originalBtnText;
-      }, 2000);
+      feedback.textContent = "Request failed.";
+      btnEl.disabled = false;
     }
   }
 
