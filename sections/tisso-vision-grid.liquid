@@ -394,7 +394,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     hotspot.addEventListener('click', async (e) => {
       e.stopPropagation();
-      // Close any other open popups first
       document.querySelectorAll('.js-popup-overlay').forEach(o => o.classList.remove('is-open'));
       document.querySelectorAll('.js-hotspot').forEach(h => { 
         h.classList.remove('is-active'); 
@@ -409,7 +408,6 @@ document.addEventListener('DOMContentLoaded', () => {
       await populatePopup(handle, popupCard, overlay, hotspot);
     });
 
-    // Close when clicking outside the card (on the overlay)
     overlay.addEventListener('click', (e) => {
       if (e.target === overlay) {
         overlay.classList.remove('is-open');
@@ -420,7 +418,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   async function populatePopup(handle, cardEl, overlayEl, hotspotEl) {
-    cardEl.innerHTML = `<div style="padding: 40px 0; text-align: center; font-family: 'Jost';">Loading...</div>`;
+    cardEl.innerHTML = `<div style="padding: 40px 0; text-align: center; font-family: 'Jost';">Loading Product...</div>`;
     try {
       const res = await fetch(`/products/${handle}.js`);
       const product = await res.json();
@@ -473,12 +471,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       <button class="tisso-popup-atc-btn js-add-to-cart">
         <span class="atc-btn-text">ADD TO CART</span>
-        <svg viewBox="0 0 25 10" width="25"><path d="M0 5h24m0 0l-4-4m4 4l-4 4" stroke="currentColor" fill="none"/></svg>
+        <svg viewBox="0 0 25 10" width="25" style="fill:none;"><path d="M0 5h24m0 0l-4-4m4 4l-4 4" stroke="currentColor"/></svg>
       </button>
-      <div class="js-feedback-msg" style="margin-top: 12px; font-size: 12px; text-align: center; font-family: 'Jost';"></div>
+      <div class="js-feedback-msg" style="margin-top: 12px; font-size: 11px; text-align: center; font-family: 'Jost';"></div>
     `;
 
-    // Internal Event Listeners
     cardEl.querySelector('.js-card-close').onclick = () => { 
       overlayEl.classList.remove('is-open'); 
       hotspotEl.style.display = 'flex'; 
@@ -493,10 +490,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const sizeSel = cardEl.querySelector('.js-size-sel');
     if(sizeSel) sizeSel.onchange = () => cardEl.querySelector('.js-size-val').textContent = sizeSel.value;
 
-    cardEl.querySelector('.js-add-to-cart').onclick = (e) => submitAddToCart(product, cardEl, e.currentTarget);
+    cardEl.querySelector('.js-add-to-cart').onclick = (e) => {
+      e.preventDefault();
+      submitAddToCart(product, cardEl, e.currentTarget);
+    };
   }
 
-  // UPDATED: submitAddToCart with Automatic Product logic
   async function submitAddToCart(product, cardEl, btnEl) {
     const feedback = cardEl.querySelector('.js-feedback-msg');
     const selectedColor = cardEl.querySelector('.js-color-opt.is-selected')?.getAttribute('data-value');
@@ -504,7 +503,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!selectedSize) {
       feedback.style.color = 'red';
-      feedback.textContent = 'Please select a size.';
+      feedback.textContent = 'Please select a size first.';
       return;
     }
 
@@ -512,65 +511,69 @@ document.addEventListener('DOMContentLoaded', () => {
     const originalBtnText = btnEl.querySelector('.atc-btn-text').textContent;
     btnEl.querySelector('.atc-btn-text').textContent = 'ADDING...';
 
-    // Find the current product variant
+    // Improved Variant Finder (Case Insensitive)
     const variant = product.variants.find(v => {
       const vOpts = v.options.map(o => o.toLowerCase().trim());
-      const hasColor = selectedColor ? vOpts.includes(selectedColor.toLowerCase().trim()) : true;
-      const hasSize = vOpts.includes(selectedSize.toLowerCase().trim());
-      return hasColor && hasSize;
+      const cMatch = selectedColor ? vOpts.includes(selectedColor.toLowerCase().trim()) : true;
+      const sMatch = vOpts.includes(selectedSize.toLowerCase().trim());
+      return cMatch && sMatch;
     });
 
     if (!variant) {
-      feedback.textContent = "Variant not found.";
+      console.error("Variant mismatch. Selected:", selectedColor, selectedSize, "Product Variants:", product.variants);
+      feedback.textContent = "This combination is not available.";
       btnEl.disabled = false;
+      btnEl.querySelector('.atc-btn-text').textContent = originalBtnText;
       return;
     }
 
-    // Prepare the list of items to add
-    let items = [{ id: variant.id, quantity: 1 }];
+    let itemsToAdd = [{ id: variant.id, quantity: 1 }];
 
-    // CHECK REQUIREMENT: If Black + M is selected, add Soft Winter Jacket
-    const isBlack = selectedColor?.toLowerCase() === 'black';
-    const isMedium = selectedSize?.toLowerCase() === 'm' || selectedSize?.toLowerCase() === 'medium';
+    // Logic for Automatic Add: Black + Medium
+    const isBlack = selectedColor?.toLowerCase().trim() === 'black';
+    const isMedium = selectedSize?.toLowerCase().trim() === 'm' || selectedSize?.toLowerCase().trim() === 'medium';
 
     if (isBlack && isMedium) {
       try {
-        const jRes = await fetch('/products/soft-winter-jacket.js');
+        const jRes = await fetch('/products/dark-winter-jacket.js');
         if (jRes.ok) {
           const jData = await jRes.json();
-          // Adding the first available variant of the jacket automatically
-          items.push({ id: jData.variants[0].id, quantity: 1 });
+          const jacketVariant = jData.variants.find(v => v.available) || jData.variants[0];
+          itemsToAdd.push({ id: jacketVariant.id, quantity: 1 });
+          console.log("Adding bonus product: dark-winter-jacket");
         }
-      } catch(e) { console.error("Could not find Soft Winter Jacket for automatic add."); }
+      } catch(e) { console.warn("Could not fetch bonus product."); }
     }
 
-    // API POST to Shopify Cart
+    // POST Request
     try {
-      const response = await fetch('/cart/add.js', {
+      const response = await fetch(window.Shopify.routes.root + 'cart/add.js', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: items })
+        body: JSON.stringify({ items: itemsToAdd })
       });
 
+      const result = await response.json();
+
       if (response.ok) {
-        feedback.style.color = 'black';
-        feedback.textContent = 'Products added to cart!';
+        feedback.style.color = 'green';
+        feedback.textContent = 'Success! Added to cart.';
         btnEl.querySelector('.atc-btn-text').textContent = 'ADDED';
-    
-        // Refresh page or trigger cart drawer
-        if (window.location.pathname.includes('cart')) {
-          window.location.reload();
-        } else {
-          document.dispatchEvent(new CustomEvent('cart:updated'));
-          document.dispatchEvent(new CustomEvent('ajaxProduct:added'));
-        }
+        
+        // Trigger Shopify events for the cart drawer
+        document.dispatchEvent(new CustomEvent('cart:updated', { detail: { cart: result } }));
+        document.dispatchEvent(new CustomEvent('ajaxProduct:added'));
+
+        if (window.location.pathname.includes('cart')) window.location.reload();
       } else {
-        const err = await response.json();
+        // This usually triggers if Available is 0
         feedback.style.color = 'red';
-        feedback.textContent = err.description || "Error adding to cart.";
+        feedback.textContent = result.description || "Out of stock.";
+        console.error("Shopify API Error:", result);
       }
     } catch (e) {
-      feedback.textContent = "Request failed.";
+      feedback.textContent = "Connection error.";
+      console.error(e);
     } finally {
       setTimeout(() => {
         btnEl.disabled = false;
