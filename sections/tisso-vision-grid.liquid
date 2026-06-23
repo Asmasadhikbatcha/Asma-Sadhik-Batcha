@@ -482,105 +482,169 @@ document.addEventListener('DOMContentLoaded', () => {
     cardEl.querySelector('.js-add-to-cart').onclick = (e) => submitAddToCart(product, cardEl, e.currentTarget);
   }
 
-  async function submitAddToCart(product, cardEl, btnEl) {
-    const feedback = cardEl.querySelector('.js-feedback-msg');
-    const selectedColor = cardEl.querySelector('.js-color-opt.is-selected')?.getAttribute('data-value');
-    const selectedSize = cardEl.querySelector('.js-size-sel')?.value;
+async function submitAddToCart(product, cardEl, btnEl) {
+  const feedback = cardEl.querySelector('.js-feedback-msg');
+  const selectedColor = cardEl.querySelector('.js-color-opt.is-selected')?.getAttribute('data-value');
+  const selectedSize = cardEl.querySelector('.js-size-sel')?.value;
 
-    if (!selectedSize) {
-      feedback.style.color = 'red'; feedback.textContent = 'Please select a size.'; return;
+  if (!selectedSize) {
+    feedback.style.color = 'red';
+    feedback.textContent = 'Please select a size.';
+    return;
+  }
+
+  btnEl.disabled = true;
+  btnEl.querySelector('.atc-btn-text').textContent = 'ADDING...';
+
+  const variant = product.variants.find(v => {
+    const vOpts = v.options.map(o => o.toLowerCase().trim());
+    const hasColor = selectedColor
+      ? vOpts.includes(selectedColor.toLowerCase().trim())
+      : true;
+    const hasSize = vOpts.includes(selectedSize.toLowerCase().trim());
+
+    return hasColor && hasSize;
+  });
+
+  if (!variant) {
+    feedback.style.color = 'red';
+    feedback.textContent = 'Variant not found.';
+    btnEl.disabled = false;
+    btnEl.querySelector('.atc-btn-text').textContent = 'ADD TO CART';
+    return;
+  }
+
+  let itemsToAdd = [
+    {
+      id: variant.id,
+      quantity: 1
     }
+  ];
 
-    btnEl.disabled = true;
-    btnEl.querySelector('.atc-btn-text').textContent = 'ADDING...';
+  // Auto-add logic
+  const isBlack =
+    selectedColor?.toLowerCase().trim() === 'black';
 
-    const variant = product.variants.find(v => {
-      const vOpts = v.options.map(o => o.toLowerCase().trim());
-      const hasColor = selectedColor ? vOpts.includes(selectedColor.toLowerCase().trim()) : true;
-      const hasSize = vOpts.includes(selectedSize.toLowerCase().trim());
-      return hasColor && hasSize;
-    });
+  const isMedium =
+    selectedSize?.toLowerCase().trim() === 'm' ||
+    selectedSize?.toLowerCase().trim() === 'medium';
 
-    if (!variant) { feedback.textContent = "Variant not found."; btnEl.disabled = false; return; }
-
-    let itemsToAdd = [{ id: variant.id, quantity: 1 }];
-
-    // --- AUTO-ADD LOGIC ---
-    const isBlack = selectedColor?.toLowerCase().trim() === 'black';
-    const isMedium = selectedSize?.toLowerCase().trim() === 'm' || selectedSize?.toLowerCase().trim() === 'medium';
-
-    if (isBlack && isMedium) {
-      try {
-        const jRes = await fetch('/products/dark-winter-jacket.js');
-        if (jRes.ok) {
-          const jData = await jRes.json();
-          itemsToAdd.push({ id: jData.variants[0].id, quantity: 1 });
-        }
-      } catch(e) { console.warn("Auto-add failed"); }
-    }
-
+  if (isBlack && isMedium) {
     try {
-      // We ask Shopify for the updated HTML for the bubble and the drawer immediately
-      const sections = ['cart-icon-bubble', 'cart-drawer', 'main-cart-items'];
-      const response = await fetch('/cart/add.js?sections=' + sections.join(','), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: itemsToAdd })
-      });
+      const jacketRes = await fetch(
+        '/products/dark-winter-jacket.js'
+      );
 
-      const result = await response.json();
+      if (jacketRes.ok) {
+        const jacketData = await jacketRes.json();
 
-      if (response.ok) {
-        feedback.style.color = 'green';
-        feedback.textContent = 'Added!';
-        btnEl.querySelector('.atc-btn-text').textContent = 'ADDED';
-        
-        // --- INSTANT UI UPDATE ---
-        // 1. Update Cart Bubble
-        if (result.sections['cart-icon-bubble']) {
-          const bubble = document.getElementById('cart-icon-bubble');
-          if (bubble) bubble.innerHTML = result.sections['cart-icon-bubble'];
-        }
-
-        // 2. Update and Open Cart Drawer
-        const drawer = document.querySelector('cart-drawer');
-        if (drawer && result.sections['cart-drawer']) {
-          // Replace drawer content
-          const html = new DOMParser().parseFromString(result.sections['cart-drawer'], 'text/html');
-          const innerDrawer = html.querySelector('#CartDrawer');
-          if (innerDrawer && document.querySelector('#CartDrawer')) {
-             document.querySelector('#CartDrawer').innerHTML = innerDrawer.innerHTML;
-          }
-          
-          // Force Dawn/Horizon theme to recognize the update
-          drawer.classList.remove('is-empty');
-          
-          // Open the drawer instantly
-          if (typeof drawer.open === 'function') {
-            drawer.open();
-          } else {
-            drawer.setAttribute('open', '');
-          }
-        }
-
-        // Trigger global event for theme listeners
-        document.body.dispatchEvent(new CustomEvent('cart:updated', {
-          detail: { cart: result }
-        }));
-
-      } else {
-        feedback.style.color = 'red';
-        feedback.textContent = result.description || "Error.";
+        itemsToAdd.push({
+          id: jacketData.variants[0].id,
+          quantity: 1
+        });
       }
-    } catch (e) { feedback.textContent = "Request failed."; }
-    finally {
-      setTimeout(() => {
-        btnEl.disabled = false;
-        btnEl.querySelector('.atc-btn-text').textContent = 'ADD TO CART';
-      }, 2000);
+    } catch (e) {
+      console.warn('Auto-add failed');
     }
   }
 
+  try {
+    const response = await fetch('/cart/add.js', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        items: itemsToAdd
+      })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.description || 'Cart error');
+    }
+
+    feedback.style.color = 'green';
+    feedback.textContent = 'Added!';
+    btnEl.querySelector('.atc-btn-text').textContent = 'ADDED';
+
+    // Get fresh cart data
+    const cartResponse = await fetch('/cart.js');
+    const cart = await cartResponse.json();
+
+    // Update cart count bubble
+    const bubble = document.querySelector('#cart-icon-bubble');
+
+    if (bubble) {
+      bubble.innerHTML = `
+        <div class="cart-count-bubble">
+          <span aria-hidden="true">${cart.item_count}</span>
+          <span class="visually-hidden">
+            ${cart.item_count} items
+          </span>
+        </div>
+      `;
+    }
+
+    // Refresh drawer sections
+    const sectionsResponse = await fetch(
+      '/?sections=cart-drawer,cart-icon-bubble'
+    );
+
+    const sectionsText = await sectionsResponse.text();
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(
+      sectionsText,
+      'text/html'
+    );
+
+    const drawer = document.querySelector('cart-drawer');
+
+    if (drawer) {
+      const newDrawer =
+        doc.querySelector('cart-drawer');
+
+      if (newDrawer) {
+        drawer.innerHTML = newDrawer.innerHTML;
+      }
+
+      drawer.classList.remove('is-empty');
+
+      if (typeof drawer.open === 'function') {
+        drawer.open();
+      } else {
+        drawer.setAttribute('open', '');
+      }
+    }
+
+    // Trigger theme update events
+    document.dispatchEvent(
+      new CustomEvent('cart:updated', {
+        detail: { cart }
+      })
+    );
+
+    document.dispatchEvent(
+      new CustomEvent('cart:refresh', {
+        detail: { cart }
+      })
+    );
+
+  } catch (error) {
+    console.error(error);
+
+    feedback.style.color = 'red';
+    feedback.textContent = error.message || 'Failed to add product.';
+  } finally {
+    setTimeout(() => {
+      btnEl.disabled = false;
+      btnEl.querySelector('.atc-btn-text').textContent =
+        'ADD TO CART';
+    }, 2000);
+  }
+}
   function getColorBarHex(colorName) {
     const n = colorName.toLowerCase();
     if (n.includes('blue')) return '#1a56db';
