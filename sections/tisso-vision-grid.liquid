@@ -394,8 +394,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     hotspot.addEventListener('click', async (e) => {
       e.stopPropagation();
+      // Close any other open popups first
       document.querySelectorAll('.js-popup-overlay').forEach(o => o.classList.remove('is-open'));
-      document.querySelectorAll('.js-hotspot').forEach(h => { h.classList.remove('is-active'); h.style.display = 'flex'; });
+      document.querySelectorAll('.js-hotspot').forEach(h => { 
+        h.classList.remove('is-active'); 
+        h.style.display = 'flex'; 
+      });
 
       overlay.classList.add('is-open');
       hotspot.classList.add('is-active');
@@ -405,6 +409,7 @@ document.addEventListener('DOMContentLoaded', () => {
       await populatePopup(handle, popupCard, overlay, hotspot);
     });
 
+    // Close when clicking outside the card (on the overlay)
     overlay.addEventListener('click', (e) => {
       if (e.target === overlay) {
         overlay.classList.remove('is-open');
@@ -415,7 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   async function populatePopup(handle, cardEl, overlayEl, hotspotEl) {
-    cardEl.innerHTML = `<div style="padding: 40px 0; text-align: center;">Loading...</div>`;
+    cardEl.innerHTML = `<div style="padding: 40px 0; text-align: center; font-family: 'Jost';">Loading...</div>`;
     try {
       const res = await fetch(`/products/${handle}.js`);
       const product = await res.json();
@@ -468,15 +473,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
       <button class="tisso-popup-atc-btn js-add-to-cart">
         <span class="atc-btn-text">ADD TO CART</span>
+        <svg viewBox="0 0 25 10" width="25"><path d="M0 5h24m0 0l-4-4m4 4l-4 4" stroke="currentColor" fill="none"/></svg>
       </button>
-      <div class="js-feedback-msg" style="margin-top: 8px; font-size: 12px; text-align: center; font-family: 'Jost';"></div>
+      <div class="js-feedback-msg" style="margin-top: 12px; font-size: 12px; text-align: center; font-family: 'Jost';"></div>
     `;
 
-    // Event Listeners
-    cardEl.querySelector('.js-card-close').onclick = () => { overlayEl.classList.remove('is-open'); hotspotEl.style.display = 'flex'; };
+    // Internal Event Listeners
+    cardEl.querySelector('.js-card-close').onclick = () => { 
+      overlayEl.classList.remove('is-open'); 
+      hotspotEl.style.display = 'flex'; 
+    };
     
     const colorSwatches = cardEl.querySelectorAll('.js-color-opt');
-    colorSwatches.forEach(s => s.onclick = () => { colorSwatches.forEach(x => x.classList.remove('is-selected')); s.classList.add('is-selected'); });
+    colorSwatches.forEach(s => s.onclick = () => { 
+      colorSwatches.forEach(x => x.classList.remove('is-selected')); 
+      s.classList.add('is-selected'); 
+    });
 
     const sizeSel = cardEl.querySelector('.js-size-sel');
     if(sizeSel) sizeSel.onchange = () => cardEl.querySelector('.js-size-val').textContent = sizeSel.value;
@@ -484,6 +496,7 @@ document.addEventListener('DOMContentLoaded', () => {
     cardEl.querySelector('.js-add-to-cart').onclick = (e) => submitAddToCart(product, cardEl, e.currentTarget);
   }
 
+  // UPDATED: submitAddToCart with Automatic Product logic
   async function submitAddToCart(product, cardEl, btnEl) {
     const feedback = cardEl.querySelector('.js-feedback-msg');
     const selectedColor = cardEl.querySelector('.js-color-opt.is-selected')?.getAttribute('data-value');
@@ -496,7 +509,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     btnEl.disabled = true;
+    const originalBtnText = btnEl.querySelector('.atc-btn-text').textContent;
     btnEl.querySelector('.atc-btn-text').textContent = 'ADDING...';
+
+    // Find the current product variant
     const variant = product.variants.find(v => {
       const vOpts = v.options.map(o => o.toLowerCase().trim());
       const hasColor = selectedColor ? vOpts.includes(selectedColor.toLowerCase().trim()) : true;
@@ -510,18 +526,25 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // Prepare the list of items to add
     let items = [{ id: variant.id, quantity: 1 }];
 
-    if (selectedColor?.toLowerCase() === 'black' && selectedSize?.toLowerCase() === 'medium') {
+    // CHECK REQUIREMENT: If Black + M is selected, add Soft Winter Jacket
+    const isBlack = selectedColor?.toLowerCase() === 'black';
+    const isMedium = selectedSize?.toLowerCase() === 'm' || selectedSize?.toLowerCase() === 'medium';
+
+    if (isBlack && isMedium) {
       try {
         const jRes = await fetch('/products/soft-winter-jacket.js');
         if (jRes.ok) {
           const jData = await jRes.json();
+          // Adding the first available variant of the jacket automatically
           items.push({ id: jData.variants[0].id, quantity: 1 });
         }
-      } catch(e) { console.log("Bonus product fetch failed"); }
+      } catch(e) { console.error("Could not find Soft Winter Jacket for automatic add."); }
     }
 
+    // API POST to Shopify Cart
     try {
       const response = await fetch('/cart/add.js', {
         method: 'POST',
@@ -531,9 +554,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (response.ok) {
         feedback.style.color = 'black';
-        feedback.textContent = 'Product added to cart!';
+        feedback.textContent = 'Products added to cart!';
         btnEl.querySelector('.atc-btn-text').textContent = 'ADDED';
     
+        // Refresh page or trigger cart drawer
         if (window.location.pathname.includes('cart')) {
           window.location.reload();
         } else {
@@ -542,6 +566,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } else {
         const err = await response.json();
+        feedback.style.color = 'red';
         feedback.textContent = err.description || "Error adding to cart.";
       }
     } catch (e) {
@@ -549,7 +574,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } finally {
       setTimeout(() => {
         btnEl.disabled = false;
-        btnEl.querySelector('.atc-btn-text').textContent = 'ADD TO CART';
+        btnEl.querySelector('.atc-btn-text').textContent = originalBtnText;
       }, 2000);
     }
   }
