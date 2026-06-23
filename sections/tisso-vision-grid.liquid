@@ -380,6 +380,7 @@
   }
 }
 </style>
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const gridItems = document.querySelectorAll('.tisso-grid-item');
@@ -408,6 +409,7 @@ document.addEventListener('DOMContentLoaded', () => {
       await populatePopup(handle, popupCard, overlay, hotspot);
     });
 
+    // Close when clicking outside the card (on the overlay)
     overlay.addEventListener('click', (e) => {
       if (e.target === overlay) {
         overlay.classList.remove('is-open');
@@ -476,6 +478,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="js-feedback-msg" style="margin-top: 12px; font-size: 12px; text-align: center; font-family: 'Jost';"></div>
     `;
 
+    // Internal Event Listeners
     cardEl.querySelector('.js-card-close').onclick = () => { 
       overlayEl.classList.remove('is-open'); 
       hotspotEl.style.display = 'flex'; 
@@ -493,6 +496,7 @@ document.addEventListener('DOMContentLoaded', () => {
     cardEl.querySelector('.js-add-to-cart').onclick = (e) => submitAddToCart(product, cardEl, e.currentTarget);
   }
 
+  // UPDATED: submitAddToCart with Automatic Product logic
   async function submitAddToCart(product, cardEl, btnEl) {
     const feedback = cardEl.querySelector('.js-feedback-msg');
     const selectedColor = cardEl.querySelector('.js-color-opt.is-selected')?.getAttribute('data-value');
@@ -508,6 +512,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const originalBtnText = btnEl.querySelector('.atc-btn-text').textContent;
     btnEl.querySelector('.atc-btn-text').textContent = 'ADDING...';
 
+    // Find the current product variant
     const variant = product.variants.find(v => {
       const vOpts = v.options.map(o => o.toLowerCase().trim());
       const hasColor = selectedColor ? vOpts.includes(selectedColor.toLowerCase().trim()) : true;
@@ -521,25 +526,25 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // Prepare the list of items to add
     let items = [{ id: variant.id, quantity: 1 }];
 
-    // Logic: If Black and Medium (M) are selected, add the jacket automatically
+    // CHECK REQUIREMENT: If Black + M is selected, add Soft Winter Jacket
     const isBlack = selectedColor?.toLowerCase() === 'black';
     const isMedium = selectedSize?.toLowerCase() === 'm' || selectedSize?.toLowerCase() === 'medium';
 
     if (isBlack && isMedium) {
       try {
-        // Updated handle to 'dark-winter-jacket' based on your image
-        const jRes = await fetch('/products/dark-winter-jacket.js');
+        const jRes = await fetch('/products/soft-winter-jacket.js');
         if (jRes.ok) {
           const jData = await jRes.json();
-          // Adding the first available variant of the Soft Winter Jacket
-          const jacketVariant = jData.variants.find(v => v.available) || jData.variants[0];
-          items.push({ id: jacketVariant.id, quantity: 1 });
+          // Adding the first available variant of the jacket automatically
+          items.push({ id: jData.variants[0].id, quantity: 1 });
         }
-      } catch(e) { console.error("Could not find Soft Winter Jacket."); }
+      } catch(e) { console.error("Could not find Soft Winter Jacket for automatic add."); }
     }
 
+    // API POST to Shopify Cart
     try {
       const response = await fetch('/cart/add.js', {
         method: 'POST',
@@ -549,9 +554,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (response.ok) {
         feedback.style.color = 'black';
-        feedback.textContent = 'Added to cart!';
+        feedback.textContent = 'Products added to cart!';
         btnEl.querySelector('.atc-btn-text').textContent = 'ADDED';
     
+        // Refresh page or trigger cart drawer
         if (window.location.pathname.includes('cart')) {
           window.location.reload();
         } else {
