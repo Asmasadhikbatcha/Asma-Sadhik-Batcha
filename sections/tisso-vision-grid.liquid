@@ -395,10 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
     hotspot.addEventListener('click', async (e) => {
       e.stopPropagation();
       document.querySelectorAll('.js-popup-overlay').forEach(o => o.classList.remove('is-open'));
-      document.querySelectorAll('.js-hotspot').forEach(h => { 
-        h.classList.remove('is-active'); 
-        h.style.display = 'flex'; 
-      });
+      document.querySelectorAll('.js-hotspot').forEach(h => { h.classList.remove('is-active'); h.style.display = 'flex'; });
 
       overlay.classList.add('is-open');
       hotspot.classList.add('is-active');
@@ -506,28 +503,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!variant) { feedback.textContent = "Variant not found."; btnEl.disabled = false; return; }
 
-    let items = [{ id: variant.id, quantity: 1 }];
+    let itemsToAdd = [{ id: variant.id, quantity: 1 }];
 
-    // --- AUTO-ADD LOGIC: BLACK + MEDIUM ---
+    // --- AUTO-ADD LOGIC ---
     const isBlack = selectedColor?.toLowerCase().trim() === 'black';
-    const isM = selectedSize?.toLowerCase().trim() === 'm' || selectedSize?.toLowerCase().trim() === 'medium';
+    const isMedium = selectedSize?.toLowerCase().trim() === 'm' || selectedSize?.toLowerCase().trim() === 'medium';
 
-    if (isBlack && isM) {
+    if (isBlack && isMedium) {
       try {
         const jRes = await fetch('/products/dark-winter-jacket.js');
         if (jRes.ok) {
           const jData = await jRes.json();
-          items.push({ id: jData.variants[0].id, quantity: 1 });
+          itemsToAdd.push({ id: jData.variants[0].id, quantity: 1 });
         }
-      } catch(e) { console.warn("Auto-add failed"); }
+      } catch(e) { console.warn("Soft winter jacket not found"); }
     }
 
     try {
-      // Fetch updated HTML from Shopify for header and drawer
-      const response = await fetch('/cart/add.js?sections=cart-icon-bubble,cart-drawer', {
+      // We call the Section Rendering API to get the new Cart Drawer HTML
+      const response = await fetch('/cart/add.js?sections=cart-drawer,cart-icon-bubble', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: items })
+        body: JSON.stringify({ items: itemsToAdd })
       });
 
       const result = await response.json();
@@ -535,25 +532,24 @@ document.addEventListener('DOMContentLoaded', () => {
       if (response.ok) {
         feedback.style.color = 'green';
         feedback.textContent = 'Added!';
-        btnEl.querySelector('.atc-btn-text').textContent = 'ADDED';
         
-        // 1. Update Header Bubble instantly
+        // 1. Update the Header Bubble Number instantly
         if (result.sections['cart-icon-bubble']) {
           const bubble = document.querySelector('#cart-icon-bubble');
           if (bubble) bubble.innerHTML = result.sections['cart-icon-bubble'];
         }
 
-        // 2. Update Side Drawer content and OPEN it
+        // 2. Open the Side Drawer instantly
         const cartDrawer = document.querySelector('cart-drawer');
         if (cartDrawer) {
-          // This tells the theme to fetch the new HTML and refresh the side drawer
+          // This tells the theme to fetch the new HTML and open the drawer
           cartDrawer.renderContents(result);
-        } else {
-          // If the above doesn't work for your specific version, we force open it
-          document.body.dispatchEvent(new CustomEvent('cart:updated', { detail: { cart: result } }));
+          // If the theme supports .open(), we call it
+          if (typeof cartDrawer.open === 'function') cartDrawer.open();
         }
 
       } else {
+        feedback.style.color = 'red';
         feedback.textContent = result.description || "Error adding.";
       }
     } catch (e) { feedback.textContent = "Request failed."; }
