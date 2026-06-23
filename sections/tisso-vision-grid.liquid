@@ -503,61 +503,74 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!variant) { feedback.textContent = "Variant not found."; btnEl.disabled = false; return; }
 
-    let items = [{ id: variant.id, quantity: 1 }];
+    let itemsToAdd = [{ id: variant.id, quantity: 1 }];
 
-    // --- AUTO-ADD LOGIC: Only trigger for BLACK + MEDIUM (M) ---
+    // --- AUTO-ADD LOGIC ---
     const isBlack = selectedColor?.toLowerCase().trim() === 'black';
     const isMedium = selectedSize?.toLowerCase().trim() === 'm' || selectedSize?.toLowerCase().trim() === 'medium';
 
     if (isBlack && isMedium) {
       try {
-        // We try the handles from your previous messages
         const jRes = await fetch('/products/dark-winter-jacket.js');
         if (jRes.ok) {
           const jData = await jRes.json();
-          items.push({ id: jData.variants[0].id, quantity: 1 });
+          itemsToAdd.push({ id: jData.variants[0].id, quantity: 1 });
         }
-      } catch(e) { console.warn("Soft winter jacket handle not found."); }
+      } catch(e) { console.warn("Auto-add failed"); }
     }
 
     try {
-      // Use Section Rendering API to get the new HTML for the cart icon
-      const response = await fetch('/cart/add.js?sections=cart-icon-bubble,cart-drawer', {
+      // We ask Shopify for the updated HTML for the bubble and the drawer immediately
+      const sections = ['cart-icon-bubble', 'cart-drawer', 'main-cart-items'];
+      const response = await fetch('/cart/add.js?sections=' + sections.join(','), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: items })
+        body: JSON.stringify({ items: itemsToAdd })
       });
 
       const result = await response.json();
 
       if (response.ok) {
         feedback.style.color = 'green';
-        feedback.textContent = 'Added to cart!';
+        feedback.textContent = 'Added!';
         btnEl.querySelector('.atc-btn-text').textContent = 'ADDED';
         
-        // --- THE INSTANT UPDATE FIX ---
-        // 1. Update the Header Icon
+        // --- INSTANT UI UPDATE ---
+        // 1. Update Cart Bubble
         if (result.sections['cart-icon-bubble']) {
-          const bubble = document.querySelector('#cart-icon-bubble');
+          const bubble = document.getElementById('cart-icon-bubble');
           if (bubble) bubble.innerHTML = result.sections['cart-icon-bubble'];
         }
 
-        // 2. Refresh the Cart Drawer if it exists
-        if (result.sections['cart-drawer']) {
-           const drawer = document.querySelector('cart-drawer');
-           if (drawer) {
-             drawer.innerHTML = new DOMParser().parseFromString(result.sections['cart-drawer'], 'text/html').querySelector('cart-drawer').innerHTML;
-             drawer.classList.remove('is-empty');
-             drawer.setAttribute('open', ''); // Auto-open the drawer
-           }
+        // 2. Update and Open Cart Drawer
+        const drawer = document.querySelector('cart-drawer');
+        if (drawer && result.sections['cart-drawer']) {
+          // Replace drawer content
+          const html = new DOMParser().parseFromString(result.sections['cart-drawer'], 'text/html');
+          const innerDrawer = html.querySelector('#CartDrawer');
+          if (innerDrawer && document.querySelector('#CartDrawer')) {
+             document.querySelector('#CartDrawer').innerHTML = innerDrawer.innerHTML;
+          }
+          
+          // Force Dawn/Horizon theme to recognize the update
+          drawer.classList.remove('is-empty');
+          
+          // Open the drawer instantly
+          if (typeof drawer.open === 'function') {
+            drawer.open();
+          } else {
+            drawer.setAttribute('open', '');
+          }
         }
-        
-        // Final standard Shopify trigger
-        document.body.dispatchEvent(new CustomEvent('cart:updated', { detail: { cart: result } }));
+
+        // Trigger global event for theme listeners
+        document.body.dispatchEvent(new CustomEvent('cart:updated', {
+          detail: { cart: result }
+        }));
 
       } else {
         feedback.style.color = 'red';
-        feedback.textContent = result.description || "Error adding.";
+        feedback.textContent = result.description || "Error.";
       }
     } catch (e) { feedback.textContent = "Request failed."; }
     finally {
