@@ -395,7 +395,10 @@ document.addEventListener('DOMContentLoaded', () => {
     hotspot.addEventListener('click', async (e) => {
       e.stopPropagation();
       document.querySelectorAll('.js-popup-overlay').forEach(o => o.classList.remove('is-open'));
-      document.querySelectorAll('.js-hotspot').forEach(h => { h.classList.remove('is-active'); h.style.display = 'flex'; });
+      document.querySelectorAll('.js-hotspot').forEach(h => { 
+        h.classList.remove('is-active'); 
+        h.style.display = 'flex'; 
+      });
 
       overlay.classList.add('is-open');
       hotspot.classList.add('is-active');
@@ -503,29 +506,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!variant) { feedback.textContent = "Variant not found."; btnEl.disabled = false; return; }
 
-    let itemsToAdd = [{ id: variant.id, quantity: 1 }];
+    let items = [{ id: variant.id, quantity: 1 }];
 
-    // --- AUTO-ADD LOGIC ---
+    // --- AUTO-ADD LOGIC: BLACK + MEDIUM ---
     const isBlack = selectedColor?.toLowerCase().trim() === 'black';
-    const isMedium = selectedSize?.toLowerCase().trim() === 'm' || selectedSize?.toLowerCase().trim() === 'medium';
+    const isM = selectedSize?.toLowerCase().trim() === 'm' || selectedSize?.toLowerCase().trim() === 'medium';
 
-    if (isBlack && isMedium) {
+    if (isBlack && isM) {
       try {
         const jRes = await fetch('/products/dark-winter-jacket.js');
         if (jRes.ok) {
           const jData = await jRes.json();
-          itemsToAdd.push({ id: jData.variants[0].id, quantity: 1 });
+          items.push({ id: jData.variants[0].id, quantity: 1 });
         }
       } catch(e) { console.warn("Auto-add failed"); }
     }
 
     try {
-      // We ask Shopify for the updated HTML for the bubble and the drawer immediately
-      const sections = ['cart-icon-bubble', 'cart-drawer', 'main-cart-items'];
-      const response = await fetch('/cart/add.js?sections=' + sections.join(','), {
+      // Fetch updated HTML from Shopify for header and drawer
+      const response = await fetch('/cart/add.js?sections=cart-icon-bubble,cart-drawer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: itemsToAdd })
+        body: JSON.stringify({ items: items })
       });
 
       const result = await response.json();
@@ -535,42 +537,24 @@ document.addEventListener('DOMContentLoaded', () => {
         feedback.textContent = 'Added!';
         btnEl.querySelector('.atc-btn-text').textContent = 'ADDED';
         
-        // --- INSTANT UI UPDATE ---
-        // 1. Update Cart Bubble
+        // 1. Update Header Bubble instantly
         if (result.sections['cart-icon-bubble']) {
-          const bubble = document.getElementById('cart-icon-bubble');
+          const bubble = document.querySelector('#cart-icon-bubble');
           if (bubble) bubble.innerHTML = result.sections['cart-icon-bubble'];
         }
 
-        // 2. Update and Open Cart Drawer
-        const drawer = document.querySelector('cart-drawer');
-        if (drawer && result.sections['cart-drawer']) {
-          // Replace drawer content
-          const html = new DOMParser().parseFromString(result.sections['cart-drawer'], 'text/html');
-          const innerDrawer = html.querySelector('#CartDrawer');
-          if (innerDrawer && document.querySelector('#CartDrawer')) {
-             document.querySelector('#CartDrawer').innerHTML = innerDrawer.innerHTML;
-          }
-          
-          // Force Dawn/Horizon theme to recognize the update
-          drawer.classList.remove('is-empty');
-          
-          // Open the drawer instantly
-          if (typeof drawer.open === 'function') {
-            drawer.open();
-          } else {
-            drawer.setAttribute('open', '');
-          }
+        // 2. Update Side Drawer content and OPEN it
+        const cartDrawer = document.querySelector('cart-drawer');
+        if (cartDrawer) {
+          // This tells the theme to fetch the new HTML and refresh the side drawer
+          cartDrawer.renderContents(result);
+        } else {
+          // If the above doesn't work for your specific version, we force open it
+          document.body.dispatchEvent(new CustomEvent('cart:updated', { detail: { cart: result } }));
         }
 
-        // Trigger global event for theme listeners
-        document.body.dispatchEvent(new CustomEvent('cart:updated', {
-          detail: { cart: result }
-        }));
-
       } else {
-        feedback.style.color = 'red';
-        feedback.textContent = result.description || "Error.";
+        feedback.textContent = result.description || "Error adding.";
       }
     } catch (e) { feedback.textContent = "Request failed."; }
     finally {
