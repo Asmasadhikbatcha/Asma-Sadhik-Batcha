@@ -522,18 +522,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let items = [{ id: variant.id, quantity: 1 }];
 
-    // Logic: Black + M/Medium = Add Soft/Dark Winter Jacket
+    // REQUIREMENT CHECK: Black + M/Medium
     const isBlack = selectedColor?.toLowerCase().trim() === 'black';
-    const isM = selectedSize?.toLowerCase().trim() === 'm' || selectedSize?.toLowerCase().trim() === 'medium';
+    const isMedium = selectedSize?.toLowerCase().trim() === 'm' || selectedSize?.toLowerCase().trim() === 'medium';
 
-    if (isBlack && isM) {
+    if (isBlack && isMedium) {
       try {
-        const jRes = await fetch('/products/dark-winter-jacket.js'); // Use handle from your screenshot
+        const jRes = await fetch('/products/dark-winter-jacket.js');
         if (jRes.ok) {
           const jData = await jRes.json();
           items.push({ id: jData.variants[0].id, quantity: 1 });
         }
-      } catch(e) { console.warn("Auto-add product not found."); }
+      } catch(e) { console.warn("Auto-add product failed."); }
     }
 
     try {
@@ -548,12 +548,8 @@ document.addEventListener('DOMContentLoaded', () => {
         feedback.textContent = 'Added to cart!';
         btnEl.querySelector('.atc-btn-text').textContent = 'ADDED';
         
-        // --- UPDATE HEADER CART COUNT WITHOUT REFRESH ---
-        updateHeaderCartCount();
-
-        // Optional: fire theme events if your theme uses a drawer
-        document.dispatchEvent(new CustomEvent('cart:updated'));
-        document.dispatchEvent(new CustomEvent('ajaxProduct:added'));
+        // Update header count and open the cart drawer automatically
+        updateCartUI();
 
       } else {
         const err = await response.json();
@@ -570,27 +566,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Function to fetch latest cart count and update the header icon
-  async function updateHeaderCartCount() {
+  // Optimized for Dawn theme to show bubble and open drawer
+  async function updateCartUI() {
     try {
       const res = await fetch('/cart.js');
       const cart = await res.json();
-      const count = cart.item_count;
-
-      // Find common Shopify cart count selectors
-      const countBubbles = document.querySelectorAll('.cart-count-bubble, #CartCount, .header__cart-count, .ajax-cart-quantity');
       
-      countBubbles.forEach(bubble => {
-        bubble.textContent = count;
-        // Ensure bubble is visible if it was empty/hidden
-        if (count > 0) {
-          bubble.style.display = 'block';
-          bubble.classList.remove('hidden');
-        }
+      // 1. Update the number in the header bubble
+      document.querySelectorAll('.cart-count-bubble, #CartCount').forEach(bubble => {
+        bubble.textContent = cart.item_count;
+        const innerSpan = bubble.querySelector('span:not(.visually-hidden)');
+        if(innerSpan) innerSpan.textContent = cart.item_count;
+        bubble.classList.remove('hidden');
       });
-    } catch (err) {
-      console.error("Could not update header count", err);
-    }
+
+      // 2. Automatically open the cart drawer (standard for Dawn theme)
+      const cartDrawer = document.querySelector('cart-drawer');
+      if (cartDrawer) {
+        cartDrawer.classList.remove('is-empty');
+        // Trigger Dawn's internal update event
+        document.body.dispatchEvent(new CustomEvent('cart:updated', {
+          detail: { cart: cart }
+        }));
+        // Open the drawer
+        cartDrawer.setAttribute('open', '');
+      }
+    } catch (err) { console.error(err); }
   }
 
   function getColorBarHex(colorName) {
