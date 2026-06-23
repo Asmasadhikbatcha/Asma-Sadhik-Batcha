@@ -394,12 +394,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     hotspot.addEventListener('click', async (e) => {
       e.stopPropagation();
-      // Close any other open popups first
       document.querySelectorAll('.js-popup-overlay').forEach(o => o.classList.remove('is-open'));
-      document.querySelectorAll('.js-hotspot').forEach(h => { 
-        h.classList.remove('is-active'); 
-        h.style.display = 'flex'; 
-      });
+      document.querySelectorAll('.js-hotspot').forEach(h => { h.classList.remove('is-active'); h.style.display = 'flex'; });
 
       overlay.classList.add('is-open');
       hotspot.classList.add('is-active');
@@ -409,7 +405,6 @@ document.addEventListener('DOMContentLoaded', () => {
       await populatePopup(handle, popupCard, overlay, hotspot);
     });
 
-    // Close when clicking outside the card (on the overlay)
     overlay.addEventListener('click', (e) => {
       if (e.target === overlay) {
         overlay.classList.remove('is-open');
@@ -473,46 +468,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
       <button class="tisso-popup-atc-btn js-add-to-cart">
         <span class="atc-btn-text">ADD TO CART</span>
-        <svg viewBox="0 0 25 10" width="25"><path d="M0 5h24m0 0l-4-4m4 4l-4 4" stroke="currentColor" fill="none"/></svg>
+        <svg viewBox="0 0 25 10" width="25" fill="none"><path d="M0 5h24m0 0l-4-4m4 4l-4 4" stroke="currentColor"/></svg>
       </button>
       <div class="js-feedback-msg" style="margin-top: 12px; font-size: 12px; text-align: center; font-family: 'Jost';"></div>
     `;
 
-    // Internal Event Listeners
-    cardEl.querySelector('.js-card-close').onclick = () => { 
-      overlayEl.classList.remove('is-open'); 
-      hotspotEl.style.display = 'flex'; 
-    };
-    
+    cardEl.querySelector('.js-card-close').onclick = () => { overlayEl.classList.remove('is-open'); hotspotEl.style.display = 'flex'; };
     const colorSwatches = cardEl.querySelectorAll('.js-color-opt');
-    colorSwatches.forEach(s => s.onclick = () => { 
-      colorSwatches.forEach(x => x.classList.remove('is-selected')); 
-      s.classList.add('is-selected'); 
-    });
-
+    colorSwatches.forEach(s => s.onclick = () => { colorSwatches.forEach(x => x.classList.remove('is-selected')); s.classList.add('is-selected'); });
     const sizeSel = cardEl.querySelector('.js-size-sel');
     if(sizeSel) sizeSel.onchange = () => cardEl.querySelector('.js-size-val').textContent = sizeSel.value;
 
     cardEl.querySelector('.js-add-to-cart').onclick = (e) => submitAddToCart(product, cardEl, e.currentTarget);
   }
 
-  // UPDATED: submitAddToCart with Automatic Product logic
   async function submitAddToCart(product, cardEl, btnEl) {
     const feedback = cardEl.querySelector('.js-feedback-msg');
     const selectedColor = cardEl.querySelector('.js-color-opt.is-selected')?.getAttribute('data-value');
     const selectedSize = cardEl.querySelector('.js-size-sel')?.value;
 
     if (!selectedSize) {
-      feedback.style.color = 'red';
-      feedback.textContent = 'Please select a size.';
-      return;
+      feedback.style.color = 'red'; feedback.textContent = 'Please select a size.'; return;
     }
 
     btnEl.disabled = true;
-    const originalBtnText = btnEl.querySelector('.atc-btn-text').textContent;
     btnEl.querySelector('.atc-btn-text').textContent = 'ADDING...';
 
-    // Find the current product variant
     const variant = product.variants.find(v => {
       const vOpts = v.options.map(o => o.toLowerCase().trim());
       const hasColor = selectedColor ? vOpts.includes(selectedColor.toLowerCase().trim()) : true;
@@ -520,61 +501,82 @@ document.addEventListener('DOMContentLoaded', () => {
       return hasColor && hasSize;
     });
 
-    if (!variant) {
-      feedback.textContent = "Variant not found.";
-      btnEl.disabled = false;
-      return;
-    }
+    if (!variant) { feedback.textContent = "Variant not found."; btnEl.disabled = false; return; }
 
-    // Prepare the list of items to add
-    let items = [{ id: variant.id, quantity: 1 }];
+    let itemsToAdd = [{ id: variant.id, quantity: 1 }];
 
-    // CHECK REQUIREMENT: If Black + M is selected, add Soft Winter Jacket
-    const isBlack = selectedColor?.toLowerCase() === 'black';
-    const isMedium = selectedSize?.toLowerCase() === 'm' || selectedSize?.toLowerCase() === 'medium';
+    // --- AUTO-ADD LOGIC ---
+    const isBlack = selectedColor?.toLowerCase().trim() === 'black';
+    const isMedium = selectedSize?.toLowerCase().trim() === 'm' || selectedSize?.toLowerCase().trim() === 'medium';
 
     if (isBlack && isMedium) {
       try {
-        const jRes = await fetch('/products/soft-winter-jacket.js');
+        const jRes = await fetch('/products/dark-winter-jacket.js');
         if (jRes.ok) {
           const jData = await jRes.json();
-          // Adding the first available variant of the jacket automatically
-          items.push({ id: jData.variants[0].id, quantity: 1 });
+          itemsToAdd.push({ id: jData.variants[0].id, quantity: 1 });
         }
-      } catch(e) { console.error("Could not find Soft Winter Jacket for automatic add."); }
+      } catch(e) { console.warn("Auto-add failed"); }
     }
 
-    // API POST to Shopify Cart
     try {
-      const response = await fetch('/cart/add.js', {
+      // We ask Shopify for the updated HTML for the bubble and the drawer immediately
+      const sections = ['cart-icon-bubble', 'cart-drawer', 'main-cart-items'];
+      const response = await fetch('/cart/add.js?sections=' + sections.join(','), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: items })
+        body: JSON.stringify({ items: itemsToAdd })
       });
 
+      const result = await response.json();
+
       if (response.ok) {
-        feedback.style.color = 'black';
-        feedback.textContent = 'Products added to cart!';
+        feedback.style.color = 'green';
+        feedback.textContent = 'Added!';
         btnEl.querySelector('.atc-btn-text').textContent = 'ADDED';
-    
-        // Refresh page or trigger cart drawer
-        if (window.location.pathname.includes('cart')) {
-          window.location.reload();
-        } else {
-          document.dispatchEvent(new CustomEvent('cart:updated'));
-          document.dispatchEvent(new CustomEvent('ajaxProduct:added'));
+        
+        // --- INSTANT UI UPDATE ---
+        // 1. Update Cart Bubble
+        if (result.sections['cart-icon-bubble']) {
+          const bubble = document.getElementById('cart-icon-bubble');
+          if (bubble) bubble.innerHTML = result.sections['cart-icon-bubble'];
         }
+
+        // 2. Update and Open Cart Drawer
+        const drawer = document.querySelector('cart-drawer');
+        if (drawer && result.sections['cart-drawer']) {
+          // Replace drawer content
+          const html = new DOMParser().parseFromString(result.sections['cart-drawer'], 'text/html');
+          const innerDrawer = html.querySelector('#CartDrawer');
+          if (innerDrawer && document.querySelector('#CartDrawer')) {
+             document.querySelector('#CartDrawer').innerHTML = innerDrawer.innerHTML;
+          }
+          
+          // Force Dawn/Horizon theme to recognize the update
+          drawer.classList.remove('is-empty');
+          
+          // Open the drawer instantly
+          if (typeof drawer.open === 'function') {
+            drawer.open();
+          } else {
+            drawer.setAttribute('open', '');
+          }
+        }
+
+        // Trigger global event for theme listeners
+        document.body.dispatchEvent(new CustomEvent('cart:updated', {
+          detail: { cart: result }
+        }));
+
       } else {
-        const err = await response.json();
         feedback.style.color = 'red';
-        feedback.textContent = err.description || "Error adding to cart.";
+        feedback.textContent = result.description || "Error.";
       }
-    } catch (e) {
-      feedback.textContent = "Request failed.";
-    } finally {
+    } catch (e) { feedback.textContent = "Request failed."; }
+    finally {
       setTimeout(() => {
         btnEl.disabled = false;
-        btnEl.querySelector('.atc-btn-text').textContent = originalBtnText;
+        btnEl.querySelector('.atc-btn-text').textContent = 'ADD TO CART';
       }, 2000);
     }
   }
