@@ -505,44 +505,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let items = [{ id: variant.id, quantity: 1 }];
 
-    // AUTO-ADD LOGIC: Must be BLACK and MEDIUM
+    // --- AUTO-ADD LOGIC: Only trigger for BLACK + MEDIUM (M) ---
     const isBlack = selectedColor?.toLowerCase().trim() === 'black';
-    const isM = selectedSize?.toLowerCase().trim() === 'm' || selectedSize?.toLowerCase().trim() === 'medium';
+    const isMedium = selectedSize?.toLowerCase().trim() === 'm' || selectedSize?.toLowerCase().trim() === 'medium';
 
-    if (isBlack && isM) {
+    if (isBlack && isMedium) {
       try {
-        const jRes = await fetch('/products/soft-winter-jacket.js');
-        if (!jRes.ok) throw new Error();
-        const jData = await jRes.json();
-        items.push({ id: jData.variants[0].id, quantity: 1 });
-      } catch(e) { 
-        // Fallback to the 'dark' handle if 'soft' doesn't exist
-        const jRes2 = await fetch('/products/dark-winter-jacket.js');
-        if (jRes2.ok) {
-          const jData2 = await jRes2.json();
-          items.push({ id: jData2.variants[0].id, quantity: 1 });
+        // We try the handles from your previous messages
+        const jRes = await fetch('/products/dark-winter-jacket.js');
+        if (jRes.ok) {
+          const jData = await jRes.json();
+          items.push({ id: jData.variants[0].id, quantity: 1 });
         }
-      }
+      } catch(e) { console.warn("Soft winter jacket handle not found."); }
     }
 
     try {
-      const response = await fetch('/cart/add.js', {
+      // Use Section Rendering API to get the new HTML for the cart icon
+      const response = await fetch('/cart/add.js?sections=cart-icon-bubble,cart-drawer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ items: items })
       });
+
+      const result = await response.json();
 
       if (response.ok) {
         feedback.style.color = 'green';
         feedback.textContent = 'Added to cart!';
         btnEl.querySelector('.atc-btn-text').textContent = 'ADDED';
         
-        // --- TRIGGER HEADER UPDATE ---
-        refreshHorizonCart();
+        // --- THE INSTANT UPDATE FIX ---
+        // 1. Update the Header Icon
+        if (result.sections['cart-icon-bubble']) {
+          const bubble = document.querySelector('#cart-icon-bubble');
+          if (bubble) bubble.innerHTML = result.sections['cart-icon-bubble'];
+        }
+
+        // 2. Refresh the Cart Drawer if it exists
+        if (result.sections['cart-drawer']) {
+           const drawer = document.querySelector('cart-drawer');
+           if (drawer) {
+             drawer.innerHTML = new DOMParser().parseFromString(result.sections['cart-drawer'], 'text/html').querySelector('cart-drawer').innerHTML;
+             drawer.classList.remove('is-empty');
+             drawer.setAttribute('open', ''); // Auto-open the drawer
+           }
+        }
+        
+        // Final standard Shopify trigger
+        document.body.dispatchEvent(new CustomEvent('cart:updated', { detail: { cart: result } }));
 
       } else {
-        const err = await response.json();
-        feedback.textContent = err.description || "Error adding to cart.";
+        feedback.style.color = 'red';
+        feedback.textContent = result.description || "Error adding.";
       }
     } catch (e) { feedback.textContent = "Request failed."; }
     finally {
@@ -551,28 +566,6 @@ document.addEventListener('DOMContentLoaded', () => {
         btnEl.querySelector('.atc-btn-text').textContent = 'ADD TO CART';
       }, 2000);
     }
-  }
-
-  // Helper to update Horizon theme header count
-  async function refreshHorizonCart() {
-    try {
-      const res = await fetch('/cart.js');
-      const cart = await res.json();
-      
-      // Update all common bubble selectors
-      const bubbles = document.querySelectorAll('.cart-count-bubble, .header__cart-count, #CartCount, .cart-item-count');
-      bubbles.forEach(b => {
-        b.textContent = cart.item_count;
-        b.classList.remove('hidden');
-      });
-
-      // Tell the theme to refresh the drawer
-      document.dispatchEvent(new CustomEvent('cart:updated', { detail: { cart: cart }}));
-      // Most Horizon/Dawn variants listen for this:
-      if (window.Shopify && Shopify.PaymentButton) {
-        document.body.dispatchEvent(new CustomEvent('ajaxProduct:added'));
-      }
-    } catch (err) { console.error(err); }
   }
 
   function getColorBarHex(colorName) {
