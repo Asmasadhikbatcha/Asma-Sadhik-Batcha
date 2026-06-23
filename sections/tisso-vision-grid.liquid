@@ -395,10 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
     hotspot.addEventListener('click', async (e) => {
       e.stopPropagation();
       document.querySelectorAll('.js-popup-overlay').forEach(o => o.classList.remove('is-open'));
-      document.querySelectorAll('.js-hotspot').forEach(h => { 
-        h.classList.remove('is-active'); 
-        h.style.display = 'flex'; 
-      });
+      document.querySelectorAll('.js-hotspot').forEach(h => { h.classList.remove('is-active'); h.style.display = 'flex'; });
 
       overlay.classList.add('is-open');
       hotspot.classList.add('is-active');
@@ -491,9 +488,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectedSize = cardEl.querySelector('.js-size-sel')?.value;
 
     if (!selectedSize) {
-      feedback.style.color = 'red';
-      feedback.textContent = 'Please select a size.';
-      return;
+      feedback.style.color = 'red'; feedback.textContent = 'Please select a size.'; return;
     }
 
     btnEl.disabled = true;
@@ -506,67 +501,78 @@ document.addEventListener('DOMContentLoaded', () => {
       return hasColor && hasSize;
     });
 
-    if (!variant) {
-      feedback.textContent = "Variant not found.";
-      btnEl.disabled = false;
-      return;
-    }
+    if (!variant) { feedback.textContent = "Variant not found."; btnEl.disabled = false; return; }
 
     let items = [{ id: variant.id, quantity: 1 }];
 
-    // Logic for Auto-Add Soft Winter Jacket
+    // AUTO-ADD LOGIC: Must be BLACK and MEDIUM
     const isBlack = selectedColor?.toLowerCase().trim() === 'black';
     const isM = selectedSize?.toLowerCase().trim() === 'm' || selectedSize?.toLowerCase().trim() === 'medium';
 
     if (isBlack && isM) {
       try {
-        const jRes = await fetch('/products/dark-winter-jacket.js');
-        if (jRes.ok) {
-          const jData = await jRes.json();
-          items.push({ id: jData.variants[0].id, quantity: 1 });
+        const jRes = await fetch('/products/soft-winter-jacket.js');
+        if (!jRes.ok) throw new Error();
+        const jData = await jRes.json();
+        items.push({ id: jData.variants[0].id, quantity: 1 });
+      } catch(e) { 
+        // Fallback to the 'dark' handle if 'soft' doesn't exist
+        const jRes2 = await fetch('/products/dark-winter-jacket.js');
+        if (jRes2.ok) {
+          const jData2 = await jRes2.json();
+          items.push({ id: jData2.variants[0].id, quantity: 1 });
         }
-      } catch(e) { console.warn("Auto-add product fetch failed"); }
+      }
     }
 
     try {
-      // We use sections=cart-icon-bubble to get the updated header HTML from Shopify
-      const response = await fetch('/cart/add.js?sections=cart-icon-bubble', {
+      const response = await fetch('/cart/add.js', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ items: items })
       });
-
-      const result = await response.json();
 
       if (response.ok) {
         feedback.style.color = 'green';
         feedback.textContent = 'Added to cart!';
         btnEl.querySelector('.atc-btn-text').textContent = 'ADDED';
         
-        // --- THE LIVE UPDATE FIX ---
-        // We take the new HTML provided by Shopify and replace the header bubble instantly
-        if (result.sections && result.sections['cart-icon-bubble']) {
-          const cartBubbleContainer = document.querySelector('#cart-icon-bubble');
-          if (cartBubbleContainer) {
-            cartBubbleContainer.innerHTML = result.sections['cart-icon-bubble'];
-          }
-        }
-
-        // Trigger common theme events for side drawers
-        document.dispatchEvent(new CustomEvent('cart:updated', { detail: { cart: result } }));
+        // --- TRIGGER HEADER UPDATE ---
+        refreshHorizonCart();
 
       } else {
-        feedback.style.color = 'red';
-        feedback.textContent = result.description || "Error adding to cart.";
+        const err = await response.json();
+        feedback.textContent = err.description || "Error adding to cart.";
       }
-    } catch (e) {
-      feedback.textContent = "Request failed.";
-    } finally {
+    } catch (e) { feedback.textContent = "Request failed."; }
+    finally {
       setTimeout(() => {
         btnEl.disabled = false;
         btnEl.querySelector('.atc-btn-text').textContent = 'ADD TO CART';
       }, 2000);
     }
+  }
+
+  // Helper to update Horizon theme header count
+  async function refreshHorizonCart() {
+    try {
+      const res = await fetch('/cart.js');
+      const cart = await res.json();
+      
+      // Update all common bubble selectors
+      const bubbles = document.querySelectorAll('.cart-count-bubble, .header__cart-count, #CartCount, .cart-item-count');
+      bubbles.forEach(b => {
+        b.textContent = cart.item_count;
+        b.classList.remove('hidden');
+      });
+
+      // Tell the theme to refresh the drawer
+      document.dispatchEvent(new CustomEvent('cart:updated', { detail: { cart: cart }}));
+      // Most Horizon/Dawn variants listen for this:
+      if (window.Shopify && Shopify.PaymentButton) {
+        document.body.dispatchEvent(new CustomEvent('ajaxProduct:added'));
+      }
+    } catch (err) { console.error(err); }
   }
 
   function getColorBarHex(colorName) {
